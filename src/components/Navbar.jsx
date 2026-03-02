@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
 import moonIcon from '../assets/moon.svg'
@@ -8,6 +8,12 @@ import styles from './Navbar.module.css'
 const Navbar = () => {
   const { isAuthenticated, logout } = useAuth()
   const { theme, toggleTheme } = useTheme()
+  const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/login')
+  }
 
   return (
     <nav className={styles.navbar}>
@@ -35,7 +41,7 @@ const Navbar = () => {
           />
         </button>
         {isAuthenticated && (
-          <button onClick={logout} className="btn">
+          <button onClick={handleLogout} className="btn">
             Abmelden
           </button>
         )}
