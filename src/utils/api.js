@@ -50,3 +50,16 @@ export async function getCurrentUser() {
 export async function logout() {
   return request('/auth/logout', { method: 'POST' })
 }
+
+// Plans
+export async function getPlans() {
+  return request('/plans')
+}
+
+export async function createPlan(data) {
+  return request('/plans', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
