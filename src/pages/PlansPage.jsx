@@ -50,6 +50,18 @@ const PlansPage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
+  const handleDelete = async (plan) => {
+    if (!window.confirm(`Plan "${plan.name}" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.`)) {
+      return
+    }
+    try {
+      await api.deletePlan(plan.id)
+      await fetchPlans()
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setFormError('')
@@ -147,6 +159,12 @@ const PlansPage = () => {
                     onClick={() => handleOpenModal(plan)}
                   >
                     Bearbeiten
+                  </button>
+                  <button
+                    className={styles.deleteBtn}
+                    onClick={() => handleDelete(plan)}
+                  >
+                    Löschen
                   </button>
                   <button
                     className="btn"
