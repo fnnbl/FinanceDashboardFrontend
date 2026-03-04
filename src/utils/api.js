@@ -63,3 +63,11 @@ export async function createPlan(data) {
     body: JSON.stringify(data),
   })
 }
+
+export async function updatePlan(planId, data) {
+  return request(`/plans/${planId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}

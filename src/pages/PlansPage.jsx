@@ -8,6 +8,7 @@ const PlansPage = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showModal, setShowModal] = useState(false)
+  const [editingPlan, setEditingPlan] = useState(null)
   const [formData, setFormData] = useState({ name: '', description: '' })
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState('')
@@ -28,14 +29,19 @@ const PlansPage = () => {
     }
   }
 
-  const handleOpenModal = () => {
-    setFormData({ name: '', description: '' })
+  const handleOpenModal = (plan = null) => {
+    setEditingPlan(plan)
+    setFormData({
+      name: plan ? plan.name : '',
+      description: plan ? (plan.description || '') : '',
+    })
     setFormError('')
     setShowModal(true)
   }
 
   const handleCloseModal = () => {
     setShowModal(false)
+    setEditingPlan(null)
     setFormError('')
   }
 
@@ -50,7 +56,11 @@ const PlansPage = () => {
     setSubmitting(true)
 
     try {
-      await api.createPlan(formData)
+      if (editingPlan) {
+        await api.updatePlan(editingPlan.id, formData)
+      } else {
+        await api.createPlan(formData)
+      }
       await fetchPlans()
       handleCloseModal()
     } catch (err) {
@@ -131,12 +141,20 @@ const PlansPage = () => {
                 <span className={styles.planMeta}>
                   {plan.budget_item_count} Posten - Erstellt am {formatDate(plan.created_at)}
                 </span>
-                <button
-                  className="btn"
-                  onClick={() => navigate(`/plans/${plan.id}`)}
-                >
-                  Details
-                </button>
+                <div className={styles.planActions}>
+                  <button
+                    className={styles.editBtn}
+                    onClick={() => handleOpenModal(plan)}
+                  >
+                    Bearbeiten
+                  </button>
+                  <button
+                    className="btn"
+                    onClick={() => navigate(`/plans/${plan.id}`)}
+                  >
+                    Details
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -150,7 +168,7 @@ const PlansPage = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className={styles.modalHeader}>
-              <h2>Neuen Plan erstellen</h2>
+              <h2>{editingPlan ? 'Plan bearbeiten' : 'Neuen Plan erstellen'}</h2>
               <button className={styles.closeBtn} onClick={handleCloseModal}>
                 &times;
               </button>
@@ -201,7 +219,9 @@ const PlansPage = () => {
                   Abbrechen
                 </button>
                 <button type="submit" className="btn" disabled={submitting}>
-                  {submitting ? 'Wird erstellt...' : 'Erstellen'}
+                  {submitting
+                    ? editingPlan ? 'Wird gespeichert...' : 'Wird erstellt...'
+                    : editingPlan ? 'Speichern' : 'Erstellen'}
                 </button>
               </div>
             </form>
