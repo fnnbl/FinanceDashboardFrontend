@@ -71,3 +71,17 @@ export async function updatePlan(planId, data) {
     body: JSON.stringify(data),
   })
 }
+
+export async function deletePlan(planId) {
+  const token = localStorage.getItem('token')
+  const headers = {}
+  if (token) headers['Authorization'] = `Bearer ${token}`
+  const response = await fetch(`/api/v1/plans/${planId}`, {
+    method: 'DELETE',
+    headers,
+  })
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}))
+    throw new Error(data.detail || `HTTP ${response.status}`)
+  }
+}
