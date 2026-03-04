@@ -31,7 +31,7 @@ export async function login(credentials) {
     username: credentials.email,
     password: credentials.password,
   })
-  const response = await fetch(`${BASE_URL}/auth/login`, {
+  const response = await fetch(`${BASE_URL}/auth/token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: body.toString(),
@@ -48,5 +48,18 @@ export async function getCurrentUser() {
 }
 
 export async function logout() {
-  return request('/auth/logout', { method: 'POST' })
+  // JWT ist stateless - kein Backend-Call nötig, Token wird nur lokal gelöscht
+}
+
+// Plans
+export async function getPlans() {
+  return request('/plans')
+}
+
+export async function createPlan(data) {
+  return request('/plans', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
 }
