@@ -51,6 +51,24 @@ export async function logout() {
   // JWT ist stateless - kein Backend-Call nötig, Token wird nur lokal gelöscht
 }
 
+// Categories
+export async function getCategories() {
+  return request('/categories')
+}
+
+// Budget Items
+export async function getBudgetItems(planId) {
+  return request(`/plans/${planId}/items`)
+}
+
+export async function createBudgetItem(planId, data) {
+  return request(`/plans/${planId}/items`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
 // Plans
 export async function getPlans() {
   return request('/plans')
@@ -70,6 +88,10 @@ export async function updatePlan(planId, data) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   })
+}
+
+export async function getPlan(planId) {
+  return request(`/plans/${planId}`)
 }
 
 export async function deletePlan(planId) {
