@@ -218,7 +218,7 @@ const PlanDetailPage = () => {
             <p className={styles.description}>{plan.description}</p>
           )}
         </div>
-        <button className="btn" onClick={handleOpenModal}>
+        <button className="btn" onClick={() => handleOpenModal()}>
           Posten hinzufügen
         </button>
       </div>
@@ -251,7 +251,7 @@ const PlanDetailPage = () => {
       {items.length === 0 ? (
         <div className={styles.empty}>
           <p>Noch keine Budget-Posten vorhanden.</p>
-          <button className="btn" onClick={handleOpenModal}>
+          <button className="btn" onClick={() => handleOpenModal()}>
             Ersten Posten hinzufügen
           </button>
         </div>

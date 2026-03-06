@@ -13,7 +13,11 @@ async function request(path, options = {}) {
   const response = await fetch(`${BASE_URL}${path}`, { ...options, headers })
   if (!response.ok) {
     const data = await response.json().catch(() => ({}))
-    throw new Error(data.detail || `HTTP ${response.status}`)
+    const detail = data.detail
+    const message = Array.isArray(detail)
+      ? detail.map((e) => `${e.loc?.at(-1) ?? '?'}: ${e.msg}`).join(', ')
+      : detail || `HTTP ${response.status}`
+    throw new Error(message)
   }
   return response.json()
 }
@@ -53,16 +57,16 @@ export async function logout() {
 
 // Categories
 export async function getCategories() {
-  return request('/categories')
+  return request('/categories/')
 }
 
 // Budget Items
 export async function getBudgetItems(planId) {
-  return request(`/plans/${planId}/items`)
+  return request(`/plans/${planId}/items/`)
 }
 
 export async function createBudgetItem(planId, data) {
-  return request(`/plans/${planId}/items`, {
+  return request(`/plans/${planId}/items/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -93,11 +97,11 @@ export async function deleteBudgetItem(planId, itemId) {
 
 // Plans
 export async function getPlans() {
-  return request('/plans')
+  return request('/plans/')
 }
 
 export async function createPlan(data) {
-  return request('/plans', {
+  return request('/plans/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
