@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
 import PlansPage from './pages/PlansPage'
+import PlanDetailPage from './pages/PlanDetailPage'
 import './App.css'
 
 function App() {
@@ -33,6 +34,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <PlansPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/plans/:planId"
+                element={
+                  <ProtectedRoute>
+                    <PlanDetailPage />
                   </ProtectedRoute>
                 }
               />

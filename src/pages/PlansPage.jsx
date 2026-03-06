@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import * as api from '../utils/api'
 import styles from './PlansPage.module.css'
 
@@ -10,6 +11,11 @@ const PlansPage = () => {
   const [formData, setFormData] = useState({ name: '', description: '' })
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState('')
+  const [editingPlan, setEditingPlan] = useState(null)
+  const [formData, setFormData] = useState({ name: '', description: '' })
+  const [submitting, setSubmitting] = useState(false)
+  const [formError, setFormError] = useState('')
+  const navigate = useNavigate()
 
   useEffect(() => {
     fetchPlans()
@@ -28,18 +34,37 @@ const PlansPage = () => {
 
   const handleOpenModal = () => {
     setFormData({ name: '', description: '' })
+  const handleOpenModal = (plan = null) => {
+    setEditingPlan(plan)
+    setFormData({
+      name: plan ? plan.name : '',
+      description: plan ? (plan.description || '') : '',
+    })
     setFormError('')
     setShowModal(true)
   }
 
   const handleCloseModal = () => {
     setShowModal(false)
+    setEditingPlan(null)
     setFormError('')
   }
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleDelete = async (plan) => {
+    if (!window.confirm(`Plan "${plan.name}" wirklich löschen?\n\nAlle zugehörigen Budget-Posten werden ebenfalls permanent gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.`)) {
+      return
+    }
+    try {
+      await api.deletePlan(plan.id)
+      await fetchPlans()
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -51,6 +76,14 @@ const PlansPage = () => {
       await api.createPlan(formData)
       await fetchPlans()
       handleCloseModal()
+      if (editingPlan) {
+        await api.updatePlan(editingPlan.id, formData)
+        await fetchPlans()
+        handleCloseModal()
+      } else {
+        const newPlan = await api.createPlan(formData)
+        navigate(`/plans/${newPlan.id}`)
+      }
     } catch (err) {
       setFormError(err.message)
     } finally {
@@ -64,6 +97,13 @@ const PlansPage = () => {
       month: '2-digit',
       year: 'numeric',
     })
+  }
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('de-DE', {
+      style: 'currency',
+      currency: 'EUR',
+    }).format(value)
   }
 
   if (loading) {
@@ -100,6 +140,50 @@ const PlansPage = () => {
               )}
               <div className={styles.planMeta}>
                 Erstellt am {formatDate(plan.created_at)}
+              <div className={styles.planStats}>
+                <div className={styles.statRow}>
+                  <span className={styles.statLabel}>Einnahmen</span>
+                  <span className={styles.statIncome}>
+                    {formatCurrency(plan.total_monthly_income)}
+                  </span>
+                </div>
+                <div className={styles.statRow}>
+                  <span className={styles.statLabel}>Ausgaben</span>
+                  <span className={styles.statExpenses}>
+                    {formatCurrency(plan.total_monthly_expenses)}
+                  </span>
+                </div>
+                <div className={`${styles.statRow} ${styles.statRowBalance}`}>
+                  <span className={styles.statLabel}>Bilanz</span>
+                  <span className={plan.monthly_balance >= 0 ? styles.statPositive : styles.statNegative}>
+                    {formatCurrency(plan.monthly_balance)}
+                  </span>
+                </div>
+              </div>
+              <div className={styles.planFooter}>
+                <span className={styles.planMeta}>
+                  {plan.budget_item_count} Posten - Erstellt am {formatDate(plan.created_at)}
+                </span>
+                <div className={styles.planActions}>
+                  <button
+                    className={styles.editBtn}
+                    onClick={() => handleOpenModal(plan)}
+                  >
+                    Bearbeiten
+                  </button>
+                  <button
+                    className={styles.deleteBtn}
+                    onClick={() => handleDelete(plan)}
+                  >
+                    Löschen
+                  </button>
+                  <button
+                    className="btn"
+                    onClick={() => navigate(`/plans/${plan.id}`)}
+                  >
+                    Details
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -114,6 +198,7 @@ const PlansPage = () => {
           >
             <div className={styles.modalHeader}>
               <h2>Neuen Plan erstellen</h2>
+              <h2>{editingPlan ? 'Plan bearbeiten' : 'Neuen Plan erstellen'}</h2>
               <button className={styles.closeBtn} onClick={handleCloseModal}>
                 &times;
               </button>
@@ -165,6 +250,9 @@ const PlansPage = () => {
                 </button>
                 <button type="submit" className="btn" disabled={submitting}>
                   {submitting ? 'Wird erstellt...' : 'Erstellen'}
+                  {submitting
+                    ? editingPlan ? 'Wird gespeichert...' : 'Wird erstellt...'
+                    : editingPlan ? 'Speichern' : 'Erstellen'}
                 </button>
               </div>
             </form>

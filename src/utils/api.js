@@ -31,7 +31,7 @@ export async function login(credentials) {
     username: credentials.email,
     password: credentials.password,
   })
-  const response = await fetch(`${BASE_URL}/auth/login`, {
+  const response = await fetch(`${BASE_URL}/auth/token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: body.toString(),
@@ -48,7 +48,86 @@ export async function getCurrentUser() {
 }
 
 export async function logout() {
-  return request('/auth/logout', { method: 'POST' })
+  // JWT ist stateless - kein Backend-Call nötig, Token wird nur lokal gelöscht
+}
+
+// Categories
+export async function getCategories() {
+  return request('/categories')
+}
+
+// Budget Items
+export async function getBudgetItems(planId) {
+  return request(`/plans/${planId}/items`)
+}
+
+export async function createBudgetItem(planId, data) {
+  return request(`/plans/${planId}/items`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function updateBudgetItem(planId, itemId, data) {
+  return request(`/plans/${planId}/items/${itemId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function deleteBudgetItem(planId, itemId) {
+  const token = localStorage.getItem('token')
+  const headers = {}
+  if (token) headers['Authorization'] = `Bearer ${token}`
+  const response = await fetch(`/api/v1/plans/${planId}/items/${itemId}`, {
+    method: 'DELETE',
+    headers,
+  })
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}))
+    throw new Error(data.detail || `HTTP ${response.status}`)
+  }
+}
+
+// Plans
+export async function getPlans() {
+  return request('/plans')
+}
+
+export async function createPlan(data) {
+  return request('/plans', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function updatePlan(planId, data) {
+  return request(`/plans/${planId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function getPlan(planId) {
+  return request(`/plans/${planId}`)
+}
+
+export async function deletePlan(planId) {
+  const token = localStorage.getItem('token')
+  const headers = {}
+  if (token) headers['Authorization'] = `Bearer ${token}`
+  const response = await fetch(`/api/v1/plans/${planId}`, {
+    method: 'DELETE',
+    headers,
+  })
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}))
+    throw new Error(data.detail || `HTTP ${response.status}`)
+  }
 }
 
 // Plans
