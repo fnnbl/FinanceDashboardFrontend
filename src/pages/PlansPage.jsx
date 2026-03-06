@@ -51,7 +51,7 @@ const PlansPage = () => {
   }
 
   const handleDelete = async (plan) => {
-    if (!window.confirm(`Plan "${plan.name}" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.`)) {
+    if (!window.confirm(`Plan "${plan.name}" wirklich löschen?\n\nAlle zugehörigen Budget-Posten werden ebenfalls permanent gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.`)) {
       return
     }
     try {
@@ -70,11 +70,12 @@ const PlansPage = () => {
     try {
       if (editingPlan) {
         await api.updatePlan(editingPlan.id, formData)
+        await fetchPlans()
+        handleCloseModal()
       } else {
-        await api.createPlan(formData)
+        const newPlan = await api.createPlan(formData)
+        navigate(`/plans/${newPlan.id}`)
       }
-      await fetchPlans()
-      handleCloseModal()
     } catch (err) {
       setFormError(err.message)
     } finally {
