@@ -8,6 +8,9 @@ const PlansPage = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showModal, setShowModal] = useState(false)
+  const [formData, setFormData] = useState({ name: '', description: '' })
+  const [submitting, setSubmitting] = useState(false)
+  const [formError, setFormError] = useState('')
   const [editingPlan, setEditingPlan] = useState(null)
   const [formData, setFormData] = useState({ name: '', description: '' })
   const [submitting, setSubmitting] = useState(false)
@@ -29,6 +32,8 @@ const PlansPage = () => {
     }
   }
 
+  const handleOpenModal = () => {
+    setFormData({ name: '', description: '' })
   const handleOpenModal = (plan = null) => {
     setEditingPlan(plan)
     setFormData({
@@ -68,6 +73,9 @@ const PlansPage = () => {
     setSubmitting(true)
 
     try {
+      await api.createPlan(formData)
+      await fetchPlans()
+      handleCloseModal()
       if (editingPlan) {
         await api.updatePlan(editingPlan.id, formData)
         await fetchPlans()
@@ -130,6 +138,8 @@ const PlansPage = () => {
               {plan.description && (
                 <p className={styles.planDescription}>{plan.description}</p>
               )}
+              <div className={styles.planMeta}>
+                Erstellt am {formatDate(plan.created_at)}
               <div className={styles.planStats}>
                 <div className={styles.statRow}>
                   <span className={styles.statLabel}>Einnahmen</span>
@@ -187,6 +197,7 @@ const PlansPage = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className={styles.modalHeader}>
+              <h2>Neuen Plan erstellen</h2>
               <h2>{editingPlan ? 'Plan bearbeiten' : 'Neuen Plan erstellen'}</h2>
               <button className={styles.closeBtn} onClick={handleCloseModal}>
                 &times;
@@ -238,6 +249,7 @@ const PlansPage = () => {
                   Abbrechen
                 </button>
                 <button type="submit" className="btn" disabled={submitting}>
+                  {submitting ? 'Wird erstellt...' : 'Erstellen'}
                   {submitting
                     ? editingPlan ? 'Wird gespeichert...' : 'Wird erstellt...'
                     : editingPlan ? 'Speichern' : 'Erstellen'}
