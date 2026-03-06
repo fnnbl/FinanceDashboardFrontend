@@ -40,6 +40,12 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       await api.register(userData)
+      // US-000: Nach Registrierung automatisch einloggen
+      const response = await api.login({ email: userData.email, password: userData.password })
+      localStorage.setItem('token', response.access_token)
+      setToken(response.access_token)
+      const currentUser = await api.getCurrentUser()
+      setUser(currentUser)
       return { success: true }
     } catch (error) {
       return { success: false, error: error.message }
