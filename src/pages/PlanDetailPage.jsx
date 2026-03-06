@@ -37,6 +37,7 @@ const PlanDetailPage = () => {
   const [error, setError] = useState('')
 
   const [showModal, setShowModal] = useState(false)
+  const [editingItem, setEditingItem] = useState(null)
   const [formData, setFormData] = useState(emptyForm)
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState('')
@@ -74,14 +75,27 @@ const PlanDetailPage = () => {
       ? parseFloat(formData.amount) / RHYTHM_DIVISORS[formData.payment_rhythm]
       : null
 
-  const handleOpenModal = () => {
-    setFormData(emptyForm)
+  const handleOpenModal = (item = null) => {
+    setEditingItem(item)
+    setFormData(
+      item
+        ? {
+            type: item.type,
+            category_id: String(item.category_id),
+            description: item.description,
+            amount: String(item.amount),
+            payment_rhythm: item.payment_rhythm,
+            note: item.note || '',
+          }
+        : emptyForm
+    )
     setFormError('')
     setShowModal(true)
   }
 
   const handleCloseModal = () => {
     setShowModal(false)
+    setEditingItem(null)
     setFormError('')
   }
 
@@ -99,12 +113,18 @@ const PlanDetailPage = () => {
     setFormError('')
     setSubmitting(true)
 
+    const payload = {
+      ...formData,
+      category_id: parseInt(formData.category_id),
+      amount: parseFloat(formData.amount),
+    }
+
     try {
-      await api.createBudgetItem(planId, {
-        ...formData,
-        category_id: parseInt(formData.category_id),
-        amount: parseFloat(formData.amount),
-      })
+      if (editingItem) {
+        await api.updateBudgetItem(planId, editingItem.id, payload)
+      } else {
+        await api.createBudgetItem(planId, payload)
+      }
       const [updatedPlan, updatedItems] = await Promise.all([
         api.getPlan(planId),
         api.getBudgetItems(planId),
@@ -116,6 +136,23 @@ const PlanDetailPage = () => {
       setFormError(err.message)
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  const handleDelete = async (item) => {
+    if (!window.confirm(`Posten "${item.description}" wirklich löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden.`)) {
+      return
+    }
+    try {
+      await api.deleteBudgetItem(planId, item.id)
+      const [updatedPlan, updatedItems] = await Promise.all([
+        api.getPlan(planId),
+        api.getBudgetItems(planId),
+      ])
+      setPlan(updatedPlan)
+      setItems(updatedItems)
+    } catch (err) {
+      setError(err.message)
     }
   }
 
@@ -157,6 +194,14 @@ const PlanDetailPage = () => {
           <span className={styles.itemMonthly}>
             {formatCurrency(item.monthly_amount)} / Monat
           </span>
+        </div>
+        <div className={styles.itemActions}>
+          <button className={styles.editBtn} onClick={() => handleOpenModal(item)}>
+            Bearbeiten
+          </button>
+          <button className={styles.deleteBtn} onClick={() => handleDelete(item)}>
+            Löschen
+          </button>
         </div>
       </div>
     ))
@@ -255,7 +300,7 @@ const PlanDetailPage = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className={styles.modalHeader}>
-              <h2>Posten hinzufügen</h2>
+              <h2>{editingItem ? 'Posten bearbeiten' : 'Posten hinzufügen'}</h2>
               <button className={styles.closeBtn} onClick={handleCloseModal}>
                 &times;
               </button>
@@ -397,7 +442,9 @@ const PlanDetailPage = () => {
                   Abbrechen
                 </button>
                 <button type="submit" className="btn" disabled={submitting}>
-                  {submitting ? 'Wird gespeichert...' : 'Hinzufügen'}
+                  {submitting
+                    ? 'Wird gespeichert...'
+                    : editingItem ? 'Speichern' : 'Hinzufügen'}
                 </button>
               </div>
             </form>

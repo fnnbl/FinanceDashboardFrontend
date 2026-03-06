@@ -69,6 +69,28 @@ export async function createBudgetItem(planId, data) {
   })
 }
 
+export async function updateBudgetItem(planId, itemId, data) {
+  return request(`/plans/${planId}/items/${itemId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function deleteBudgetItem(planId, itemId) {
+  const token = localStorage.getItem('token')
+  const headers = {}
+  if (token) headers['Authorization'] = `Bearer ${token}`
+  const response = await fetch(`/api/v1/plans/${planId}/items/${itemId}`, {
+    method: 'DELETE',
+    headers,
+  })
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}))
+    throw new Error(data.detail || `HTTP ${response.status}`)
+  }
+}
+
 // Plans
 export async function getPlans() {
   return request('/plans')

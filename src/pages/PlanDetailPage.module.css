@@ -176,6 +176,50 @@
   gap: 0.2rem;
 }
 
+.itemActions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: 1rem;
+  flex-shrink: 0;
+}
+
+.editBtn {
+  background: none;
+  border: 1px solid rgba(128, 128, 128, 0.4);
+  border-radius: 8px;
+  padding: 0.3rem 0.7rem;
+  font-family: "Roboto Mono", monospace;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: background-color 0.15s;
+}
+
+.editBtn:hover {
+  background-color: rgba(128, 128, 128, 0.12);
+}
+
+.deleteBtn {
+  background: none;
+  border: 1px solid rgba(198, 40, 40, 0.4);
+  border-radius: 8px;
+  padding: 0.3rem 0.7rem;
+  font-family: "Roboto Mono", monospace;
+  font-size: 12px;
+  cursor: pointer;
+  color: #c62828;
+  transition: background-color 0.15s;
+}
+
+.deleteBtn:hover {
+  background-color: rgba(198, 40, 40, 0.08);
+}
+
+:global([data-theme="dark"]) .deleteBtn {
+  color: #ef9a9a;
+  border-color: rgba(239, 154, 154, 0.4);
+}
+
 .itemAmount {
   font-weight: 700;
 }
