@@ -8,6 +8,7 @@ import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
 import PlansPage from './pages/PlansPage'
 import PlanDetailPage from './pages/PlanDetailPage'
+import CategoriesPage from './pages/CategoriesPage'
 import './App.css'
 
 function App() {
@@ -42,6 +43,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <PlanDetailPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/categories"
+                element={
+                  <ProtectedRoute>
+                    <CategoriesPage />
                   </ProtectedRoute>
                 }
               />

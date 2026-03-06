@@ -60,6 +60,40 @@ export async function getCategories() {
   return request('/categories/')
 }
 
+export async function createCategory(data) {
+  return request('/categories/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function updateCategory(categoryId, data) {
+  return request(`/categories/${categoryId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function deleteCategory(categoryId, reassignTo = null) {
+  const url = reassignTo
+    ? `/categories/${categoryId}?reassign_to=${reassignTo}`
+    : `/categories/${categoryId}`
+  const token = getToken()
+  const headers = {}
+  if (token) headers['Authorization'] = `Bearer ${token}`
+  const response = await fetch(`${BASE_URL}${url}`, { method: 'DELETE', headers })
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}))
+    const detail = data.detail
+    const message = Array.isArray(detail)
+      ? detail.map((e) => `${e.loc?.at(-1) ?? '?'}: ${e.msg}`).join(', ')
+      : detail || `HTTP ${response.status}`
+    throw new Error(message)
+  }
+}
+
 // Budget Items
 export async function getBudgetItems(planId) {
   return request(`/plans/${planId}/items/`)
