@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { AuthProvider } from './contexts/AuthContext'
-import Navbar from './components/Navbar'
+import Sidebar from './components/Sidebar'
 import ProtectedRoute from './components/ProtectedRoute'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
@@ -16,7 +16,7 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <div id="app-wrapper">
-          <Navbar />
+          <Sidebar />
           <div className="app-content">
             <Routes>
               <Route path="/" element={<Navigate to="/login" replace />} />

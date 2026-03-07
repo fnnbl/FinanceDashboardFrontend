@@ -1,93 +1,101 @@
+/* Used by both LoginPage.jsx and RegisterPage.jsx */
+
 .container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   padding: 2rem;
+  background-color: var(--background-color);
 }
 
 .formWrapper {
   background-color: var(--section-bg);
-  padding: 3rem;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  max-width: 500px;
+  padding: 2.25rem 2.5rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-card);
+  max-width: 400px;
   width: 100%;
 }
 
 .title {
+  font-size: 20px;
+  font-weight: 700;
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
+  color: var(--text-color);
+  letter-spacing: -0.015em;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.125rem;
 }
 
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.35rem;
 }
 
 .label {
-  font-weight: 700;
-  color: var(--form-text-color);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-color);
 }
 
 .input {
-  padding: 0.8rem;
-  border: 2px solid var(--navlinks-border);
-  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 7px;
   background-color: var(--input-bg);
   color: var(--text-color);
-  font-family: "Roboto Mono", monospace;
-  font-size: 16px;
-  transition: border-color 0.2s;
+  font-size: 14px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+  width: 100%;
 }
 
 .input:focus {
-  outline: none;
-  border-color: var(--text-color);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-subtle);
 }
 
 .input:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .error {
-  color: #d32f2f;
-  font-size: 14px;
+  color: var(--color-expense);
+  font-size: 13px;
   margin: 0;
+  padding: 0.6rem 0.75rem;
+  background-color: rgba(220, 38, 38, 0.06);
+  border: 1px solid rgba(220, 38, 38, 0.15);
+  border-radius: 6px;
 }
 
-.success {
-  color: #2e7d32;
-  font-size: 14px;
-  margin: 0;
+:global([data-theme="dark"]) .error {
+  background-color: rgba(248, 113, 113, 0.08);
+  border-color: rgba(248, 113, 113, 0.2);
 }
 
 .footer {
   text-align: center;
   margin-top: 1.5rem;
-  color: var(--form-text-color);
+  font-size: 13px;
+  color: var(--text-muted);
 }
 
 .link {
-  color: var(--text-color);
-  font-weight: 700;
+  color: var(--accent);
+  font-weight: 600;
   text-decoration: none;
 }
 
 .link:hover {
   text-decoration: underline;
-}
-
-@media (width >= 800px) {
-  .input {
-    font-size: 18px;
-  }
 }

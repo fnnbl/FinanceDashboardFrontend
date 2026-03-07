@@ -5,182 +5,68 @@ html, body, #root {
   padding: 0;
 }
 
-#root,
+#root {
+  display: flex;
+  min-height: 100vh;
+}
+
 #app-wrapper {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex: 1;
   min-height: 100vh;
-  height: 100%;
 }
 
 .app-content {
-  flex: 1 0 auto;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  margin-bottom: 54px;
+  flex: 1;
+  min-width: 0;
+  margin-left: 220px;
 }
 
-:root {
-  --background-color: #e8e5e0;
-  --btn-color: #222;
-  --btn-text-color: #fff;
-  --project-card-bg: #ffffff00;
-  --section-bg: #f8f7f4;
-  --section-header-bg: #d5d2cc;
-  --text-color: #222;
-  --form-text-color: #555;
-  --footer-text-color: #333;
-  --navlinks-bg: #dde8f0;
-  --navlinks-border: #bbc8d0;
-  --main-box-bg: #e8e5e0;
-  --input-bg: #fff;
-
-  --table-row-bg-light: #f2f1ee;
-  --table-row-bg-dark: #353a3e;
-  --table-border-light: #333;
-  --table-border-dark: #555;
+@media (width < 768px) {
+  .app-content {
+    margin-left: 0;
+    padding-top: 54px;
+  }
 }
 
-[data-theme="dark"] {
-  --background-color: #2d3035;
-  --btn-color: #fff;
-  --btn-text-color: #222;
-  --project-card-bg: #fff;
-  --section-bg: #363a3e;
-  --section-header-bg: #3f4347;
-  --text-color: #f0f0f0;
-  --form-text-color: #d0d0d0;
-  --footer-text-color: #aaaaaa;
-  --navlinks-bg: #2e363a;
-  --navlinks-border: #4a5258;
-  --main-box-bg: #363a3e;
-  --input-bg: #292c30;
-  --table-row-bg: var(--table-row-bg-dark);
-  --table-border: var(--table-border-dark);
-}
-
-[data-theme="light"] {
-  --table-row-bg: var(--table-row-bg-light);
-  --table-border: var(--table-border-light);
-}
-
-body {
-  font-family: "Roboto Mono", monospace;
-  background-color: var(--background-color);
-  color: var(--text-color);
-  margin: 0;
-}
-
-h1,
-h2,
-h3 {
-  font-family: "Rubik", sans-serif;
-  text-transform: uppercase;
-  color: var(--text-color);
-  margin: 0;
-  padding: 0;
-  letter-spacing: 0.04em;
-  font-weight: 800;
-}
-
-h1 {
-  font-size: 32px;
-}
-h2,
-h3 {
-  font-size: 20px;
-}
-
-p,
-td,
-th,
-label,
-input,
-button,
-span {
-  font-family: "Roboto Mono", monospace;
-  color: var(--text-color);
-  font-size: 16px;
-  font-weight: 400;
-  letter-spacing: 0.01em;
-}
-p {
-  font-weight: 300;
-}
-
-.sectionTitle {
-  margin-bottom: 30px;
-}
-
-.hover {
-  cursor: pointer;
-}
-
+/* Primary button - used globally */
 .btn {
-  font-family: "Roboto Mono", monospace;
-  font-weight: 700;
-  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--accent);
+  color: var(--accent-text);
   border: none;
-  border-radius: 14px;
-  padding: 0.7rem 1.7rem;
+  border-radius: 7px;
+  padding: 0.55rem 1.2rem;
   cursor: pointer;
-  box-shadow: 0 1px 8px 0 rgba(80, 80, 80, 0.07);
-  background: #222;
-  color: #fff;
-  transition: background 0.18s, color 0.18s, transform 0.14s;
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+  text-decoration: none;
+  letter-spacing: 0.01em;
 }
 
 .btn:hover,
 .btn:focus {
-  background: #6b705c;
-  color: #fff;
+  background: var(--accent-hover);
+  color: var(--accent-text);
   outline: none;
-  transform: translateY(-1px) scale(1.01);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-[data-theme="dark"] .btn {
-  background: #fff;
-  color: #222;
-}
-[data-theme="dark"] .btn:hover,
-[data-theme="dark"] .btn:focus {
-  background: #6b705c;
-  color: #fff;
+.btn:active {
+  transform: translateY(0);
+  box-shadow: none;
 }
 
-@media (width >= 800px) {
-  #root {
-    gap: 100px;
-  }
-  h1 {
-    font-size: 40px;
-  }
-  h2,
-  h3 {
-    font-size: 24px;
-  }
-  p,
-  td,
-  th,
-  label,
-  input,
-  button,
-  span {
-    font-size: 20px;
-  }
-  .sectionTitle {
-    margin-bottom: 60px;
-  }
-}
-@media (width >= 1400px) {
-  #root {
-    gap: 200px;
-  }
-  h1 {
-    font-size: 48px;
-  }
-  .sectionTitle {
-    margin-bottom: 75px;
-  }
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
