@@ -17,6 +17,14 @@ const RHYTHM_DIVISORS = {
   annually: 12,
 }
 
+const RHYTHM_ORDER = ['monthly', 'quarterly', 'semi_annually', 'annually']
+
+const CATEGORY_COLORS = [
+  '#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f',
+  '#edc948', '#b07aa1', '#ff9da7', '#9c755f', '#bab0ac',
+  '#4dc9f6', '#f67019', '#537bc4', '#acc236', '#166a8f',
+]
+
 const emptyForm = {
   type: 'expense',
   category_id: '',
@@ -24,6 +32,50 @@ const emptyForm = {
   amount: '',
   payment_rhythm: 'monthly',
   note: '',
+}
+
+const DonutChart = ({ data }) => {
+  const size = 180
+  const cx = size / 2
+  const cy = size / 2
+  const r = size * 0.42
+  const innerR = size * 0.26
+  const total = data.reduce((s, d) => s + d.amount, 0)
+
+  if (data.length === 1) {
+    return (
+      <svg viewBox={`0 0 ${size} ${size}`} className={styles.donutSvg}>
+        <circle cx={cx} cy={cy} r={r} fill={data[0].color} />
+        <circle cx={cx} cy={cy} r={innerR} fill="var(--section-bg)" />
+      </svg>
+    )
+  }
+
+  let cumAngle = -Math.PI / 2
+  return (
+    <svg viewBox={`0 0 ${size} ${size}`} className={styles.donutSvg}>
+      {data.map((item) => {
+        const angle = (item.amount / total) * 2 * Math.PI
+        const startAngle = cumAngle
+        cumAngle += angle
+        const x1 = cx + r * Math.cos(startAngle)
+        const y1 = cy + r * Math.sin(startAngle)
+        const x2 = cx + r * Math.cos(cumAngle)
+        const y2 = cy + r * Math.sin(cumAngle)
+        const largeArc = angle > Math.PI ? 1 : 0
+        return (
+          <path
+            key={item.id}
+            d={`M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`}
+            fill={item.color}
+            stroke="var(--section-bg)"
+            strokeWidth="1.5"
+          />
+        )
+      })}
+      <circle cx={cx} cy={cy} r={innerR} fill="var(--section-bg)" />
+    </svg>
+  )
 }
 
 const PlanDetailPage = () => {
@@ -35,6 +87,12 @@ const PlanDetailPage = () => {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  const [activeTab, setActiveTab] = useState('dashboard')
+  const [chartType, setChartType] = useState('expense')
+
+  const [sortField, setSortField] = useState('monthly_amount')
+  const [sortDir, setSortDir] = useState('desc')
 
   const [showModal, setShowModal] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
@@ -74,6 +132,68 @@ const PlanDetailPage = () => {
     formData.amount && formData.payment_rhythm
       ? parseFloat(formData.amount) / RHYTHM_DIVISORS[formData.payment_rhythm]
       : null
+
+  const getCategoryBreakdown = (type) => {
+    const typeItems = items.filter((i) => i.type === type)
+    const total = typeItems.reduce((sum, i) => sum + i.monthly_amount, 0)
+    const byCat = {}
+    typeItems.forEach((item) => {
+      byCat[item.category_id] = (byCat[item.category_id] || 0) + item.monthly_amount
+    })
+    return Object.entries(byCat)
+      .map(([catId, amount]) => ({
+        id: parseInt(catId),
+        name: getCategoryName(parseInt(catId)),
+        amount,
+        percent: total > 0 ? (amount / total) * 100 : 0,
+      }))
+      .sort((a, b) => b.amount - a.amount)
+      .map((c, i) => ({ ...c, color: CATEGORY_COLORS[i % CATEGORY_COLORS.length] }))
+  }
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortField(field)
+      setSortDir(['description', 'category', 'payment_rhythm'].includes(field) ? 'asc' : 'desc')
+    }
+  }
+
+  const getSortIcon = (field) => {
+    if (sortField !== field) return <span className={styles.sortIconInactive}> ↕</span>
+    return <span className={styles.sortIconActive}>{sortDir === 'asc' ? ' ↑' : ' ↓'}</span>
+  }
+
+  const getSortedItems = (sectionItems) => {
+    return [...sectionItems].sort((a, b) => {
+      let av, bv
+      switch (sortField) {
+        case 'description':
+          av = a.description.toLowerCase()
+          bv = b.description.toLowerCase()
+          break
+        case 'category':
+          av = getCategoryName(a.category_id).toLowerCase()
+          bv = getCategoryName(b.category_id).toLowerCase()
+          break
+        case 'amount':
+          av = a.amount
+          bv = b.amount
+          break
+        case 'payment_rhythm':
+          av = RHYTHM_ORDER.indexOf(a.payment_rhythm)
+          bv = RHYTHM_ORDER.indexOf(b.payment_rhythm)
+          break
+        default:
+          av = a.monthly_amount
+          bv = b.monthly_amount
+      }
+      if (av < bv) return sortDir === 'asc' ? -1 : 1
+      if (av > bv) return sortDir === 'asc' ? 1 : -1
+      return 0
+    })
+  }
 
   const handleOpenModal = (item = null) => {
     setEditingItem(item)
@@ -165,7 +285,6 @@ const PlanDetailPage = () => {
 
   const incomeItems = items.filter((i) => i.type === 'income')
   const expenseItems = items.filter((i) => i.type === 'expense')
-
   const incomeSum = incomeItems.reduce((sum, i) => sum + i.monthly_amount, 0)
   const expenseSum = expenseItems.reduce((sum, i) => sum + i.monthly_amount, 0)
 
@@ -206,6 +325,8 @@ const PlanDetailPage = () => {
       </div>
     ))
 
+  const breakdown = getCategoryBreakdown(chartType)
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -244,7 +365,14 @@ const PlanDetailPage = () => {
         </div>
         <div className={styles.statItem}>
           <span className={styles.statLabel}>Posten</span>
-          <span>{plan.budget_item_count}</span>
+          <span>
+            {incomeItems.length > 0 && expenseItems.length > 0
+              ? `${incomeItems.length} / ${expenseItems.length}`
+              : plan.budget_item_count}
+          </span>
+          {incomeItems.length > 0 && expenseItems.length > 0 && (
+            <span className={styles.statSubLabel}>Einnahmen / Ausgaben</span>
+          )}
         </div>
       </div>
 
@@ -256,41 +384,171 @@ const PlanDetailPage = () => {
           </button>
         </div>
       ) : (
-        <div className={styles.sections}>
-          {incomeItems.length > 0 && (
-            <section>
-              <h2 className={`${styles.sectionTitle} ${styles.sectionIncome}`}>
-                Einnahmen
-              </h2>
-              <div className={styles.itemList}>
-                {renderItemList(incomeItems)}
-                <div className={styles.sectionSum}>
-                  <span>Summe monatlich</span>
-                  <span className={styles.statIncome}>
-                    {formatCurrency(incomeSum)}
-                  </span>
-                </div>
+        <>
+          <div className={styles.tabs}>
+            <button
+              className={`${styles.tab} ${activeTab === 'dashboard' ? styles.tabActive : ''}`}
+              onClick={() => setActiveTab('dashboard')}
+            >
+              Übersicht
+            </button>
+            <button
+              className={`${styles.tab} ${activeTab === 'items' ? styles.tabActive : ''}`}
+              onClick={() => setActiveTab('items')}
+            >
+              Budget-Posten
+            </button>
+          </div>
+
+          {activeTab === 'dashboard' && (
+            <div className={styles.dashboard}>
+              {/* Top 5 Ausgabenkategorien - US-043 */}
+              <div className={styles.top5Section}>
+                <h3 className={styles.subTitle}>Top 5 Ausgabenkategorien</h3>
+                {getCategoryBreakdown('expense').length === 0 ? (
+                  <p className={styles.noData}>Keine Ausgaben vorhanden.</p>
+                ) : (
+                  <div className={styles.top5List}>
+                    {getCategoryBreakdown('expense').slice(0, 5).map((cat, i) => (
+                      <div key={cat.id} className={styles.top5Row}>
+                        <span className={styles.top5Rank}>{i + 1}</span>
+                        <span
+                          className={styles.colorDot}
+                          style={{ backgroundColor: cat.color }}
+                        />
+                        <span className={styles.top5Name}>{cat.name}</span>
+                        <span className={styles.top5Amount}>{formatCurrency(cat.amount)}/Mo</span>
+                        <span className={styles.breakdownPercent}>{cat.percent.toFixed(1)}%</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            </section>
+
+              {/* Vollständige Kategorieauswertung - US-041/042 */}
+              <div className={styles.chartToggle}>
+                <button
+                  className={`${styles.toggleBtn} ${chartType === 'expense' ? styles.toggleExpense : ''}`}
+                  onClick={() => setChartType('expense')}
+                >
+                  Ausgaben
+                </button>
+                <button
+                  className={`${styles.toggleBtn} ${chartType === 'income' ? styles.toggleIncome : ''}`}
+                  onClick={() => setChartType('income')}
+                >
+                  Einnahmen
+                </button>
+              </div>
+
+              {breakdown.length === 0 ? (
+                <div className={styles.noData}>
+                  Keine {chartType === 'expense' ? 'Ausgaben' : 'Einnahmen'} vorhanden.
+                </div>
+              ) : (
+                <div className={styles.dashboardGrid}>
+                  <div className={styles.breakdownSection}>
+                    <h3 className={styles.subTitle}>Nach Kategorie</h3>
+                    {breakdown.map((cat) => (
+                      <div key={cat.id} className={styles.breakdownRow}>
+                        <div className={styles.breakdownHeader}>
+                          <span
+                            className={styles.colorDot}
+                            style={{ backgroundColor: cat.color }}
+                          />
+                          <span className={styles.breakdownName}>{cat.name}</span>
+                          <span className={styles.breakdownAmount}>
+                            {formatCurrency(cat.amount)}/Mo
+                          </span>
+                          <span className={styles.breakdownPercent}>
+                            {cat.percent.toFixed(1)}%
+                          </span>
+                        </div>
+                        <div className={styles.breakdownBar}>
+                          <div
+                            className={styles.breakdownBarFill}
+                            style={{ width: `${cat.percent}%`, backgroundColor: cat.color }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className={styles.chartSection}>
+                    <h3 className={styles.subTitle}>Verteilung</h3>
+                    <DonutChart data={breakdown} />
+                    <div className={styles.legend}>
+                      {breakdown.slice(0, 6).map((cat) => (
+                        <div key={cat.id} className={styles.legendItem}>
+                          <span
+                            className={styles.legendDot}
+                            style={{ backgroundColor: cat.color }}
+                          />
+                          <span className={styles.legendName}>{cat.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
 
-          {expenseItems.length > 0 && (
-            <section>
-              <h2 className={`${styles.sectionTitle} ${styles.sectionExpense}`}>
-                Ausgaben
-              </h2>
-              <div className={styles.itemList}>
-                {renderItemList(expenseItems)}
-                <div className={styles.sectionSum}>
-                  <span>Summe monatlich</span>
-                  <span className={styles.statExpenses}>
-                    {formatCurrency(expenseSum)}
-                  </span>
-                </div>
+          {activeTab === 'items' && (
+            <div className={styles.itemsView}>
+              <div className={styles.sortBar}>
+                <span className={styles.sortLabel}>Sortieren:</span>
+                {[
+                  { key: 'monthly_amount', label: 'Monatlich' },
+                  { key: 'amount', label: 'Betrag' },
+                  { key: 'description', label: 'Bezeichnung' },
+                  { key: 'category', label: 'Kategorie' },
+                  { key: 'payment_rhythm', label: 'Rhythmus' },
+                ].map(({ key, label }) => (
+                  <button
+                    key={key}
+                    className={`${styles.sortBtn} ${sortField === key ? styles.sortBtnActive : ''}`}
+                    onClick={() => handleSort(key)}
+                  >
+                    {label}{getSortIcon(key)}
+                  </button>
+                ))}
               </div>
-            </section>
+
+              <div className={styles.sections}>
+                {incomeItems.length > 0 && (
+                  <section>
+                    <h2 className={`${styles.sectionTitle} ${styles.sectionIncome}`}>
+                      Einnahmen
+                    </h2>
+                    <div className={styles.itemList}>
+                      {renderItemList(getSortedItems(incomeItems))}
+                      <div className={styles.sectionSum}>
+                        <span>Summe monatlich</span>
+                        <span className={styles.statIncome}>{formatCurrency(incomeSum)}</span>
+                      </div>
+                    </div>
+                  </section>
+                )}
+
+                {expenseItems.length > 0 && (
+                  <section>
+                    <h2 className={`${styles.sectionTitle} ${styles.sectionExpense}`}>
+                      Ausgaben
+                    </h2>
+                    <div className={styles.itemList}>
+                      {renderItemList(getSortedItems(expenseItems))}
+                      <div className={styles.sectionSum}>
+                        <span>Summe monatlich</span>
+                        <span className={styles.statExpenses}>{formatCurrency(expenseSum)}</span>
+                      </div>
+                    </div>
+                  </section>
+                )}
+              </div>
+            </div>
           )}
-        </div>
+        </>
       )}
 
       {showModal && (
