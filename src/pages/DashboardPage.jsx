@@ -81,7 +81,7 @@ const DashboardPage = () => {
               value={activePlanId ?? ''}
               onChange={handleSetActivePlan}
             >
-              <option value="">Plan auswahlen...</option>
+              <option value="">Plan auswählen...</option>
               {plans.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
@@ -91,22 +91,22 @@ const DashboardPage = () => {
 
         {plans.length === 0 ? (
           <div className={styles.emptyHint}>
-            Noch keine Plane vorhanden. <Link to="/plans">Plan erstellen</Link>
+            Noch keine Pläne vorhanden. <Link to="/plans">Plan erstellen</Link>
           </div>
         ) : activePlanId === null ? (
           <div className={styles.emptyHint}>
-            Wahle einen Plan aus dem Dropdown aus, um dessen Kennzahlen hier anzuzeigen.
+            Wähle einen Plan aus dem Dropdown aus, um dessen Kennzahlen hier anzuzeigen.
           </div>
         ) : activePlan === null ? (
           <div className={styles.emptyHint}>
-            Der zuletzt aktive Plan wurde geloscht. Bitte einen neuen Plan auswahlen.
+            Der zuletzt aktive Plan wurde gelöscht. Bitte einen neuen Plan auswählen.
           </div>
         ) : (
           <div className={styles.activePlanCard}>
             <div className={styles.activePlanHeader}>
               <span className={styles.activePlanName}>{activePlan.name}</span>
               <Link to={`/plans/${activePlan.id}`} className="btn">
-                Plan offnen
+                Plan öffnen
               </Link>
             </div>
             {activePlan.description && (
@@ -154,7 +154,7 @@ const DashboardPage = () => {
           <div className={styles.sectionHeader}>
             <h2>Plan-Vergleich</h2>
             {comparePlanIds.length >= 3 && (
-              <span className={styles.compareMaxHint}>Maximum erreicht (3 Plane)</span>
+              <span className={styles.compareMaxHint}>Maximum erreicht (3 Pläne)</span>
             )}
           </div>
 
@@ -181,7 +181,7 @@ const DashboardPage = () => {
 
           {comparePlans.length === 0 ? (
             <div className={styles.emptyHint}>
-              Wahle bis zu 3 Plane aus, um sie nebeneinander zu vergleichen.
+              Wähle bis zu 3 Pläne aus, um sie nebeneinander zu vergleichen.
             </div>
           ) : (
             <div className={styles.compareTableWrapper}>

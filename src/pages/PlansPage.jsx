@@ -125,11 +125,31 @@ const PlansPage = () => {
       ) : (
         <div className={styles.plansList}>
           {plans.map((plan) => (
-            <div key={plan.id} className={styles.planCard}>
-              <div className={styles.planName}>{plan.name}</div>
+            <div
+              key={plan.id}
+              className={`${styles.planCard} ${plan.monthly_balance >= 0 ? styles.planCardPositive : styles.planCardNegative}`}
+            >
+              <div className={styles.planHeader}>
+                <span className={styles.planName}>{plan.name}</span>
+                <button
+                  className="btn"
+                  onClick={() => navigate(`/plans/${plan.id}`)}
+                >
+                  Öffnen
+                </button>
+              </div>
+
               {plan.description && (
                 <p className={styles.planDescription}>{plan.description}</p>
               )}
+
+              <div className={styles.planBalance}>
+                <span className={plan.monthly_balance >= 0 ? styles.balancePositive : styles.balanceNegative}>
+                  {formatCurrency(plan.monthly_balance)}
+                </span>
+                <span className={styles.balanceLabel}>monatliche Bilanz</span>
+              </div>
+
               <div className={styles.planStats}>
                 <div className={styles.statRow}>
                   <span className={styles.statLabel}>Einnahmen</span>
@@ -143,16 +163,11 @@ const PlansPage = () => {
                     {formatCurrency(plan.total_monthly_expenses)}
                   </span>
                 </div>
-                <div className={`${styles.statRow} ${styles.statRowBalance}`}>
-                  <span className={styles.statLabel}>Bilanz</span>
-                  <span className={plan.monthly_balance >= 0 ? styles.statPositive : styles.statNegative}>
-                    {formatCurrency(plan.monthly_balance)}
-                  </span>
-                </div>
               </div>
+
               <div className={styles.planFooter}>
                 <span className={styles.planMeta}>
-                  {plan.budget_item_count} Posten - Erstellt am {formatDate(plan.created_at)}
+                  {plan.budget_item_count} Posten · {formatDate(plan.created_at)}
                 </span>
                 <div className={styles.planActions}>
                   <button
@@ -166,12 +181,6 @@ const PlansPage = () => {
                     onClick={() => handleDelete(plan)}
                   >
                     Löschen
-                  </button>
-                  <button
-                    className="btn"
-                    onClick={() => navigate(`/plans/${plan.id}`)}
-                  >
-                    Details
                   </button>
                 </div>
               </div>

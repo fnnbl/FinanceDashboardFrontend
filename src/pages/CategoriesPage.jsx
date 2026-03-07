@@ -129,7 +129,7 @@ const CategoriesPage = () => {
                     className={styles.deleteBtn}
                     onClick={() => handleOpenDelete(cat)}
                   >
-                    Loschen
+                    Löschen
                   </button>
                 </div>
               )}
@@ -230,14 +230,14 @@ const CategoriesPage = () => {
         <div className={styles.modal} onClick={handleCloseDelete}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h2>Kategorie loschen</h2>
+              <h2>Kategorie löschen</h2>
               <button className={styles.closeBtn} onClick={handleCloseDelete}>
                 &times;
               </button>
             </div>
 
             <p className={styles.deleteText}>
-              Kategorie <strong>{deletingCategory.name}</strong> wirklich loschen?
+              Kategorie <strong>{deletingCategory.name}</strong> wirklich löschen?
             </p>
 
             {reassignOptions.length > 0 && (
@@ -252,13 +252,13 @@ const CategoriesPage = () => {
                   className={styles.input}
                   disabled={deleting}
                 >
-                  <option value="">-- Nicht umbuchen (Posten bleiben unveraendert)</option>
+                  <option value="">-- Nicht umbuchen (Posten bleiben unverändert)</option>
                   {reassignOptions.map((c) => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
                 </select>
                 <span className={styles.hint}>
-                  Falls Budget-Posten dieser Kategorie zugeordnet sind, musst du sie umbuchen oder zuerst loschen.
+                  Falls Budget-Posten dieser Kategorie zugeordnet sind, musst du sie umbuchen oder zuerst löschen.
                 </span>
               </div>
             )}
@@ -270,7 +270,7 @@ const CategoriesPage = () => {
                 Abbrechen
               </button>
               <button className={styles.deleteBtnModal} onClick={handleDelete} disabled={deleting}>
-                {deleting ? 'Wird geloscht...' : 'Loschen'}
+                {deleting ? 'Wird gelöscht...' : 'Löschen'}
               </button>
             </div>
           </div>
