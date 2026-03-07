@@ -429,9 +429,329 @@
   margin-top: 0.5rem;
 }
 
+/* Stat sub-label (Einnahmen / Ausgaben count) */
+.statSubLabel {
+  font-size: 10px;
+  opacity: 0.5;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid rgba(128, 128, 128, 0.15);
+}
+
+.tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  padding: 0.6rem 1.2rem;
+  font-family: "Roboto Mono", monospace;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--text-color);
+  opacity: 0.5;
+  transition: opacity 0.15s, border-color 0.15s;
+}
+
+.tab:hover {
+  opacity: 0.8;
+}
+
+.tabActive {
+  opacity: 1;
+  border-bottom-color: var(--text-color);
+}
+
+/* Dashboard tab */
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.chartToggle {
+  display: flex;
+  gap: 0.5rem;
+  align-self: flex-start;
+}
+
+.toggleBtn {
+  background: none;
+  border: 2px solid rgba(128, 128, 128, 0.3);
+  border-radius: 20px;
+  padding: 0.4rem 1.1rem;
+  font-family: "Roboto Mono", monospace;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--text-color);
+  opacity: 0.6;
+  transition: all 0.15s;
+}
+
+.toggleBtn:hover {
+  opacity: 0.85;
+}
+
+.toggleExpense {
+  opacity: 1;
+  border-color: #c62828;
+  color: #c62828;
+  background-color: rgba(198, 40, 40, 0.06);
+}
+
+.toggleIncome {
+  opacity: 1;
+  border-color: #2e7d32;
+  color: #2e7d32;
+  background-color: rgba(46, 125, 50, 0.06);
+}
+
+:global([data-theme="dark"]) .toggleExpense {
+  border-color: #ef9a9a;
+  color: #ef9a9a;
+  background-color: rgba(239, 154, 154, 0.08);
+}
+
+:global([data-theme="dark"]) .toggleIncome {
+  border-color: #66bb6a;
+  color: #66bb6a;
+  background-color: rgba(102, 187, 106, 0.08);
+}
+
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.subTitle {
+  font-family: "Rubik", sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  opacity: 0.5;
+  margin: 0 0 1rem 0;
+}
+
+.breakdownSection {
+  background-color: var(--section-bg);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.breakdownRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.breakdownHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.colorDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.breakdownName {
+  flex: 1;
+  font-size: 14px;
+}
+
+.breakdownAmount {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.breakdownPercent {
+  font-size: 12px;
+  opacity: 0.55;
+  min-width: 3.5rem;
+  text-align: right;
+}
+
+.breakdownBar {
+  height: 4px;
+  background-color: rgba(128, 128, 128, 0.15);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.breakdownBarFill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.chartSection {
+  background-color: var(--section-bg);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.donutSvg {
+  width: 160px;
+  height: 160px;
+}
+
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legendName {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.noData {
+  padding: 2rem;
+  text-align: center;
+  opacity: 0.5;
+}
+
+/* Top 5 Ausgabenkategorien */
+.top5Section {
+  background-color: var(--section-bg);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.top5List {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.top5Row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.top5Rank {
+  font-size: 12px;
+  opacity: 0.4;
+  min-width: 1rem;
+  text-align: right;
+}
+
+.top5Name {
+  flex: 1;
+  font-size: 14px;
+}
+
+.top5Amount {
+  font-size: 13px;
+  font-weight: 700;
+  color: #c62828;
+}
+
+:global([data-theme="dark"]) .top5Amount {
+  color: #ef9a9a;
+}
+
+/* Items tab */
+.itemsView {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sortBar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.sortLabel {
+  font-size: 12px;
+  opacity: 0.5;
+  margin-right: 0.25rem;
+}
+
+.sortBtn {
+  background: none;
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: 20px;
+  padding: 0.3rem 0.8rem;
+  font-family: "Roboto Mono", monospace;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text-color);
+  opacity: 0.6;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.sortBtn:hover {
+  opacity: 0.9;
+  background-color: rgba(128, 128, 128, 0.08);
+}
+
+.sortBtnActive {
+  opacity: 1;
+  border-color: var(--text-color);
+  background-color: rgba(128, 128, 128, 0.1);
+}
+
+.sortIconInactive {
+  opacity: 0.4;
+}
+
+.sortIconActive {
+  opacity: 1;
+}
+
 @media (width >= 800px) {
   .container {
     padding: 3rem;
+  }
+}
+
+@media (width < 700px) {
+  .dashboardGrid {
+    grid-template-columns: 1fr;
   }
 }
 
