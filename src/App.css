@@ -17,9 +17,13 @@ html, body, #root {
   min-height: 100vh;
 }
 
-.app-content {
+.app-content,
+.app-content-full {
   flex: 1;
   min-width: 0;
+}
+
+.app-content {
   margin-left: 220px;
 }
 

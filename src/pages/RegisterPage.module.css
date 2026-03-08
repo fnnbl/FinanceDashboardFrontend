@@ -2,11 +2,56 @@
 
 .container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   padding: 2rem;
   background-color: var(--background-color);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 400px;
+  transform: translateY(-4rem);
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  text-align: center;
+}
+
+.brandHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.brandMark {
+  width: 580px;
+  height: 580px;
+  object-fit: contain;
+  margin-bottom: -8rem;
+}
+
+.brandName {
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--text-color);
+  letter-spacing: -0.03em;
+}
+
+.tagline {
+  font-size: 19px;
+  color: var(--text-muted);
+  margin: 0;
 }
 
 .formWrapper {
@@ -15,7 +60,6 @@
   border-radius: 10px;
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-card);
-  max-width: 400px;
   width: 100%;
 }
 
@@ -98,4 +142,35 @@
 
 .link:hover {
   text-decoration: underline;
+}
+
+.themeToggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background: var(--section-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.themeToggle:hover {
+  background: var(--background-color);
+  border-color: var(--border-hover);
+}
+
+.themeToggle img {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+:global([data-theme="dark"]) .themeToggle img {
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
 }

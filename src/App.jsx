@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ThemeProvider } from './contexts/ThemeContext'
-import { AuthProvider } from './contexts/AuthContext'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Sidebar from './components/Sidebar'
 import ProtectedRoute from './components/ProtectedRoute'
 import LoginPage from './pages/LoginPage'
@@ -11,52 +11,60 @@ import PlanDetailPage from './pages/PlanDetailPage'
 import CategoriesPage from './pages/CategoriesPage'
 import './App.css'
 
+function AppShell() {
+  const { isAuthenticated } = useAuth()
+
+  return (
+    <div id="app-wrapper">
+      <Sidebar />
+      <div className={isAuthenticated ? 'app-content' : 'app-content-full'}>
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plans"
+            element={
+              <ProtectedRoute>
+                <PlansPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plans/:planId"
+            element={
+              <ProtectedRoute>
+                <PlanDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/categories"
+            element={
+              <ProtectedRoute>
+                <CategoriesPage />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </div>
+    </div>
+  )
+}
+
 function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <div id="app-wrapper">
-          <Sidebar />
-          <div className="app-content">
-            <Routes>
-              <Route path="/" element={<Navigate to="/login" replace />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <DashboardPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/plans"
-                element={
-                  <ProtectedRoute>
-                    <PlansPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/plans/:planId"
-                element={
-                  <ProtectedRoute>
-                    <PlanDetailPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/categories"
-                element={
-                  <ProtectedRoute>
-                    <CategoriesPage />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </div>
-        </div>
+        <AppShell />
       </AuthProvider>
     </ThemeProvider>
   )

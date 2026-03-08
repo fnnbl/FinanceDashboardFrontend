@@ -1,18 +1,34 @@
+import { useState, useRef, useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
 import sunIcon from '../assets/sun.svg'
 import moonIcon from '../assets/moon.svg'
+import logoLight from '../assets/BudgetManagementLightNoDesc.svg'
+import logoDark from '../assets/BudgetManagementDarkNoDesc.svg'
 import styles from './Sidebar.module.css'
 
 const Sidebar = () => {
   const { isAuthenticated, logout, user } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef(null)
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   if (!isAuthenticated) return null
 
   const handleLogout = async () => {
+    setMenuOpen(false)
     await logout()
     navigate('/login')
   }
@@ -27,8 +43,11 @@ const Sidebar = () => {
     <aside className={styles.sidebar}>
       <div className={styles.top}>
         <div className={styles.logo}>
-          <span className={styles.logoMark}>FD</span>
-          <span className={styles.logoText}>Finance Dashboard</span>
+          <img
+            src={theme === 'dark' ? logoDark : logoLight}
+            alt="Finance Dashboard Logo"
+            className={styles.logoMark}
+          />
         </div>
 
         <nav className={styles.nav}>
@@ -89,14 +108,24 @@ const Sidebar = () => {
           {theme === 'dark' ? 'Heller Modus' : 'Dunkler Modus'}
         </button>
 
-        <div className={styles.userSection}>
-          <div className={styles.userAvatar}>{initial}</div>
-          <div className={styles.userInfo}>
+        <div className={styles.userSection} ref={menuRef}>
+          <button
+            className={styles.userButton}
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-label="Benutzer-Menü"
+          >
+            <div className={styles.userAvatar}>{initial}</div>
             <span className={styles.userName}>{displayName}</span>
-            <button onClick={handleLogout} className={styles.logoutBtn}>
-              Abmelden
-            </button>
-          </div>
+          </button>
+
+          {menuOpen && (
+            <div className={styles.userMenu}>
+              <div className={styles.userMenuName}>{displayName}</div>
+              <button onClick={handleLogout} className={styles.userMenuItem}>
+                Abmelden
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </aside>
