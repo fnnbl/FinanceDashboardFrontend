@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { useTheme } from '../contexts/ThemeContext'
+import sunIcon from '../assets/sun.svg'
+import moonIcon from '../assets/moon.svg'
+import logoLight from '../assets/BudgetManagementLight.svg'
+import logoDark from '../assets/BudgetManagementDark.svg'
 import styles from './RegisterPage.module.css'
 
 const LoginPage = () => {
@@ -9,6 +14,7 @@ const LoginPage = () => {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const { login } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
@@ -28,7 +34,21 @@ const LoginPage = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.formWrapper}>
+      <button onClick={toggleTheme} className={styles.themeToggle} aria-label="Design wechseln">
+        <img src={theme === 'dark' ? sunIcon : moonIcon} alt="" />
+      </button>
+
+      <div className={styles.group}>
+        <div className={styles.brand}>
+          <img
+            src={theme === 'dark' ? logoDark : logoLight}
+            alt="Finance Dashboard Logo"
+            className={styles.brandMark}
+          />
+          <p className={styles.tagline}>Behalte den Überblick über deine Finanzen.</p>
+        </div>
+
+        <div className={styles.formWrapper}>
         <h1 className={styles.title}>Anmelden</h1>
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formGroup}>
@@ -72,6 +92,7 @@ const LoginPage = () => {
             Jetzt registrieren
           </Link>
         </p>
+        </div>
       </div>
     </div>
   )

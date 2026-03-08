@@ -11,11 +11,11 @@
   -moz-osx-font-smoothing: grayscale;
 
   /* Surfaces */
-  --background-color: #e8e3db;
-  --section-bg: #ffffff;
-  --section-header-bg: #e8e3db;
-  --border-color: #cdc8c0;
-  --border-hover: #a8a39b;
+  --background-color: #eceae4;
+  --section-bg: #faf9f7;
+  --section-header-bg: #eceae4;
+  --border-color: #b8b4ac;
+  --border-hover: #8f8b84;
 
   /* Text */
   --text-color: #111827;
@@ -33,7 +33,7 @@
 
   /* Navigation / Sidebar */
   --nav-bg: #ffffff;
-  --sidebar-bg: #dcd7cf;
+  --sidebar-bg: #eae9e4;
   --sidebar-hover: rgba(0, 0, 0, 0.06);
   --sidebar-active-bg: rgba(0, 0, 0, 0.08);
 
@@ -42,7 +42,7 @@
   --color-expense: #b91c1c;
 
   /* Shadows */
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.1), 0 2px 10px rgba(0, 0, 0, 0.07);
   --shadow-modal: 0 8px 24px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
