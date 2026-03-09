@@ -94,6 +94,7 @@ const PlanDetailPage = () => {
   const [sortField, setSortField] = useState('monthly_amount')
   const [sortDir, setSortDir] = useState('desc')
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCategories, setSelectedCategories] = useState(new Set())
 
   const [showModal, setShowModal] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
@@ -287,16 +288,35 @@ const PlanDetailPage = () => {
   const incomeItems = items.filter((i) => i.type === 'income')
   const expenseItems = items.filter((i) => i.type === 'expense')
 
-  const filteredItems = searchQuery.trim()
-    ? items.filter((item) => {
-        const q = searchQuery.toLowerCase()
-        return (
-          item.description.toLowerCase().includes(q) ||
-          getCategoryName(item.category_id).toLowerCase().includes(q) ||
-          (item.note && item.note.toLowerCase().includes(q))
-        )
-      })
-    : items
+  const availableCategories = categories.filter((c) =>
+    items.some((i) => i.category_id === c.id)
+  )
+
+  const toggleCategory = (catId) => {
+    setSelectedCategories((prev) => {
+      const next = new Set(prev)
+      next.has(catId) ? next.delete(catId) : next.add(catId)
+      return next
+    })
+  }
+
+  const resetFilters = () => {
+    setSearchQuery('')
+    setSelectedCategories(new Set())
+  }
+
+  const hasActiveFilters = searchQuery.trim() || selectedCategories.size > 0
+
+  const filteredItems = items.filter((item) => {
+    const q = searchQuery.toLowerCase().trim()
+    const matchesSearch = !q || (
+      item.description.toLowerCase().includes(q) ||
+      getCategoryName(item.category_id).toLowerCase().includes(q) ||
+      (item.note && item.note.toLowerCase().includes(q))
+    )
+    const matchesCategory = selectedCategories.size === 0 || selectedCategories.has(item.category_id)
+    return matchesSearch && matchesCategory
+  })
 
   const filteredIncomeItems = filteredItems.filter((i) => i.type === 'income')
   const filteredExpenseItems = filteredItems.filter((i) => i.type === 'expense')
@@ -526,6 +546,26 @@ const PlanDetailPage = () => {
                 )}
               </div>
 
+              {availableCategories.length > 0 && (
+                <div className={styles.filterBar}>
+                  <span className={styles.sortLabel}>Kategorie:</span>
+                  {availableCategories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      className={`${styles.filterBtn} ${selectedCategories.has(cat.id) ? styles.filterBtnActive : ''}`}
+                      onClick={() => toggleCategory(cat.id)}
+                    >
+                      {cat.name}
+                    </button>
+                  ))}
+                  {hasActiveFilters && (
+                    <button className={styles.filterReset} onClick={resetFilters}>
+                      Zurücksetzen
+                    </button>
+                  )}
+                </div>
+              )}
+
               <div className={styles.sortBar}>
                 <span className={styles.sortLabel}>Sortieren:</span>
                 {[
@@ -545,9 +585,9 @@ const PlanDetailPage = () => {
                 ))}
               </div>
 
-              {filteredItems.length === 0 && searchQuery ? (
+              {filteredItems.length === 0 && hasActiveFilters ? (
                 <div className={styles.searchEmpty}>
-                  Keine Ergebnisse für „{searchQuery}".
+                  Keine Ergebnisse für die gewählten Filter.
                 </div>
               ) : (
                 <div className={styles.sections}>
