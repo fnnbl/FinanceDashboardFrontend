@@ -172,8 +172,8 @@ const PlanDetailPage = () => {
     try {
       const blob = type === 'pdf'
         ? await api.exportPlanPDF(planId)
-        : await api.exportPlanCSV(planId)
-      const ext = type === 'pdf' ? 'pdf' : 'csv'
+        : await api.exportPlanExcel(planId)
+      const ext = type === 'pdf' ? 'pdf' : 'xlsx'
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -423,8 +423,8 @@ const PlanDetailPage = () => {
                 <button className={styles.exportMenuItem} onClick={() => handleExport('pdf')}>
                   PDF exportieren
                 </button>
-                <button className={styles.exportMenuItem} onClick={() => handleExport('csv')}>
-                  CSV exportieren
+                <button className={styles.exportMenuItem} onClick={() => handleExport('excel')}>
+                  Excel exportieren
                 </button>
               </div>
             )}

@@ -170,7 +170,7 @@ export async function exportPlanPDF(planId) {
   return exportFile(`/api/v1/plans/${planId}/export/pdf`)
 }
 
-export async function exportPlanCSV(planId) {
+export async function exportPlanExcel(planId) {
   return exportFile(`/api/v1/plans/${planId}/export/csv`)
 }
 
