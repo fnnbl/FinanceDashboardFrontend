@@ -154,6 +154,26 @@ export async function getPlan(planId) {
   return request(`/plans/${planId}`)
 }
 
+async function exportFile(url) {
+  const token = localStorage.getItem('token')
+  const headers = {}
+  if (token) headers['Authorization'] = `Bearer ${token}`
+  const response = await fetch(url, { headers })
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}))
+    throw new Error(data.detail || `HTTP ${response.status}`)
+  }
+  return response.blob()
+}
+
+export async function exportPlanPDF(planId) {
+  return exportFile(`/api/v1/plans/${planId}/export/pdf`)
+}
+
+export async function exportPlanCSV(planId) {
+  return exportFile(`/api/v1/plans/${planId}/export/csv`)
+}
+
 export async function duplicatePlan(planId) {
   return request(`/plans/${planId}/duplicate`, { method: 'POST' })
 }

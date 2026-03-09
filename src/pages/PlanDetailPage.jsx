@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import * as api from '../utils/api'
 import styles from './PlanDetailPage.module.css'
@@ -101,6 +101,9 @@ const PlanDetailPage = () => {
   const [formData, setFormData] = useState(emptyForm)
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState('')
+  const [exporting, setExporting] = useState(false)
+  const [showExportMenu, setShowExportMenu] = useState(false)
+  const exportMenuRef = useRef(null)
 
   useEffect(() => {
     loadAll()
@@ -151,6 +154,37 @@ const PlanDetailPage = () => {
       }))
       .sort((a, b) => b.amount - a.amount)
       .map((c, i) => ({ ...c, color: CATEGORY_COLORS[i % CATEGORY_COLORS.length] }))
+  }
+
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target)) {
+        setShowExportMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handleOutsideClick)
+    return () => document.removeEventListener('mousedown', handleOutsideClick)
+  }, [])
+
+  const handleExport = async (type) => {
+    setShowExportMenu(false)
+    setExporting(true)
+    try {
+      const blob = type === 'pdf'
+        ? await api.exportPlanPDF(planId)
+        : await api.exportPlanCSV(planId)
+      const ext = type === 'pdf' ? 'pdf' : 'csv'
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${plan.name}.${ext}`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setExporting(false)
+    }
   }
 
   const handleSort = (field) => {
@@ -374,9 +408,31 @@ const PlanDetailPage = () => {
             <p className={styles.description}>{plan.description}</p>
           )}
         </div>
-        <button className="btn" onClick={() => handleOpenModal()}>
-          Posten hinzufügen
-        </button>
+        <div className={styles.headerActions}>
+          <div className={styles.exportWrapper} ref={exportMenuRef}>
+            <button
+              className={styles.exportBtn}
+              onClick={() => setShowExportMenu((o) => !o)}
+              disabled={exporting}
+            >
+              {exporting ? 'Wird exportiert...' : 'Exportieren'}
+              {!exporting && <span className={styles.exportCaret}>&#9660;</span>}
+            </button>
+            {showExportMenu && (
+              <div className={styles.exportMenu}>
+                <button className={styles.exportMenuItem} onClick={() => handleExport('pdf')}>
+                  PDF exportieren
+                </button>
+                <button className={styles.exportMenuItem} onClick={() => handleExport('csv')}>
+                  CSV exportieren
+                </button>
+              </div>
+            )}
+          </div>
+          <button className="btn" onClick={() => handleOpenModal()}>
+            Posten hinzufügen
+          </button>
+        </div>
       </div>
 
       <div className={styles.statsBar}>
