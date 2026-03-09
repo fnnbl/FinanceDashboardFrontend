@@ -1021,6 +1021,21 @@
 }
 
 @media (width < 600px) {
+  .container {
+    padding: 1.5rem 1rem;
+  }
+
+  .header {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .headerActions {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 0;
+  }
+
   .statsBar {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1028,13 +1043,74 @@
   .statItem {
     border-right: none;
     border-bottom: 1px solid var(--border-color);
+    padding: 0.875rem 1rem;
+  }
+
+  .itemActions {
+    margin-left: 0.75rem;
   }
 
   .formRow {
     grid-template-columns: 1fr;
   }
+}
 
-  .header {
+@media (width < 480px) {
+  .container {
+    padding: 1.25rem 0.875rem;
+  }
+
+  .backBtn {
+    font-size: 12px;
+    padding: 0.35rem 0.75rem;
+  }
+
+  .headerTitle h1 {
+    font-size: 1.15rem;
+  }
+
+  .statIncome,
+  .statExpenses,
+  .statPositive,
+  .statNegative {
+    font-size: 14px;
+  }
+
+  .statLabel {
+    font-size: 10px;
+  }
+
+  .itemRow {
     flex-wrap: wrap;
+    gap: 0.625rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .itemInfo {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .itemAmounts {
+    flex-shrink: 0;
+  }
+
+  .itemActions {
+    width: 100%;
+    margin-left: 0;
+    justify-content: flex-end;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .editBtn,
+  .deleteBtn {
+    font-size: 12px;
+    padding: 0.35rem 0.75rem;
+  }
+
+  .exportBtn {
+    font-size: 12px;
+    padding: 0.45rem 0.9rem;
   }
 }
