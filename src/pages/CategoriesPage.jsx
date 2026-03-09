@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import * as api from '../utils/api'
+import { useLanguage } from '../contexts/LanguageContext'
 import styles from './CategoriesPage.module.css'
 
 const emptyForm = { name: '', type: 'expense' }
@@ -8,6 +9,7 @@ const CategoriesPage = () => {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const { t, tCat } = useLanguage()
 
   const [showFormModal, setShowFormModal] = useState(false)
   const [editingCategory, setEditingCategory] = useState(null)
@@ -107,14 +109,14 @@ const CategoriesPage = () => {
       <h2 className={`${styles.sectionTitle} ${colorClass}`}>{title}</h2>
       <div className={styles.categoryList}>
         {sectionCategories.length === 0 ? (
-          <p className={styles.emptySection}>Keine Kategorien vorhanden.</p>
+          <p className={styles.emptySection}>{t('categories.empty_section')}</p>
         ) : (
           sectionCategories.map((cat) => (
             <div key={cat.id} className={styles.categoryRow}>
               <div className={styles.categoryInfo}>
-                <span className={styles.categoryName}>{cat.name}</span>
+                <span className={styles.categoryName}>{tCat(cat.name, cat.is_system)}</span>
                 {cat.is_system && (
-                  <span className={styles.systemBadge}>Standard</span>
+                  <span className={styles.systemBadge}>{t('categories.standard_badge')}</span>
                 )}
               </div>
               {!cat.is_system && (
@@ -123,13 +125,13 @@ const CategoriesPage = () => {
                     className={styles.editBtn}
                     onClick={() => handleOpenForm(cat)}
                   >
-                    Bearbeiten
+                    {t('common.edit')}
                   </button>
                   <button
                     className={styles.deleteBtn}
                     onClick={() => handleOpenDelete(cat)}
                   >
-                    Löschen
+                    {t('common.delete')}
                   </button>
                 </div>
               )}
@@ -140,28 +142,28 @@ const CategoriesPage = () => {
     </section>
   )
 
-  if (loading) return <div className={styles.loading}>Kategorien werden geladen...</div>
+  if (loading) return <div className={styles.loading}>{t('categories.loading')}</div>
   if (error) return <div className={styles.errorPage}>{error}</div>
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1>Kategorien</h1>
+        <h1>{t('categories.title')}</h1>
         <button className="btn" onClick={() => handleOpenForm()}>
-          Neue Kategorie
+          {t('categories.new_button')}
         </button>
       </div>
 
       <div className={styles.sections}>
-        {renderSection('Ausgaben', expenseCategories, styles.expenseTitle)}
-        {renderSection('Einnahmen', incomeCategories, styles.incomeTitle)}
+        {renderSection(t('categories.expenses_section'), expenseCategories, styles.expenseTitle)}
+        {renderSection(t('categories.income_section'), incomeCategories, styles.incomeTitle)}
       </div>
 
       {showFormModal && (
         <div className={styles.modal} onClick={handleCloseForm}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h2>{editingCategory ? 'Kategorie bearbeiten' : 'Neue Kategorie'}</h2>
+              <h2>{editingCategory ? t('categories.modal.edit_title') : t('categories.modal.create_title')}</h2>
               <button className={styles.closeBtn} onClick={handleCloseForm}>
                 &times;
               </button>
@@ -171,14 +173,14 @@ const CategoriesPage = () => {
 
             <form onSubmit={handleSubmit} className={styles.form}>
               <div className={styles.formGroup}>
-                <label htmlFor="name" className={styles.label}>Name</label>
+                <label htmlFor="name" className={styles.label}>{t('categories.modal.name_label')}</label>
                 <input
                   id="name"
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
                   className={styles.input}
-                  placeholder="z.B. Haustiere, Dividenden..."
+                  placeholder={t('categories.modal.name_placeholder')}
                   required
                   disabled={submitting}
                   autoFocus
@@ -187,7 +189,7 @@ const CategoriesPage = () => {
 
               {!editingCategory && (
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Typ</label>
+                  <label className={styles.label}>{t('categories.modal.type_label')}</label>
                   <div className={styles.typeToggle}>
                     <label className={`${styles.typeOption} ${formData.type === 'expense' ? styles.typeActiveExpense : ''}`}>
                       <input
@@ -197,7 +199,7 @@ const CategoriesPage = () => {
                         checked={formData.type === 'expense'}
                         onChange={(e) => setFormData((p) => ({ ...p, type: e.target.value }))}
                       />
-                      Ausgabe
+                      {t('categories.modal.type_expense')}
                     </label>
                     <label className={`${styles.typeOption} ${formData.type === 'income' ? styles.typeActiveIncome : ''}`}>
                       <input
@@ -207,7 +209,7 @@ const CategoriesPage = () => {
                         checked={formData.type === 'income'}
                         onChange={(e) => setFormData((p) => ({ ...p, type: e.target.value }))}
                       />
-                      Einnahme
+                      {t('categories.modal.type_income')}
                     </label>
                   </div>
                 </div>
@@ -215,10 +217,12 @@ const CategoriesPage = () => {
 
               <div className={styles.formActions}>
                 <button type="button" className="btn" onClick={handleCloseForm} disabled={submitting}>
-                  Abbrechen
+                  {t('common.cancel')}
                 </button>
                 <button type="submit" className="btn" disabled={submitting}>
-                  {submitting ? 'Wird gespeichert...' : editingCategory ? 'Speichern' : 'Erstellen'}
+                  {submitting
+                    ? t('common.saving')
+                    : editingCategory ? t('common.save') : t('common.create')}
                 </button>
               </div>
             </form>
@@ -230,21 +234,21 @@ const CategoriesPage = () => {
         <div className={styles.modal} onClick={handleCloseDelete}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h2>Kategorie löschen</h2>
+              <h2>{t('categories.delete_modal.title')}</h2>
               <button className={styles.closeBtn} onClick={handleCloseDelete}>
                 &times;
               </button>
             </div>
 
             <p className={styles.deleteText}>
-              Kategorie <strong>{deletingCategory.name}</strong> wirklich löschen?
+              {t('categories.delete_modal.confirm_text', { name: deletingCategory.name })}
             </p>
 
             {reassignOptions.length > 0 && (
               <div className={styles.formGroup}>
                 <label className={styles.label}>
-                  Budget-Posten umbuchen auf{' '}
-                  <span className={styles.optional}>(optional)</span>
+                  {t('categories.delete_modal.reassign_label')}{' '}
+                  <span className={styles.optional}>{t('common.optional')}</span>
                 </label>
                 <select
                   value={reassignTo}
@@ -252,13 +256,13 @@ const CategoriesPage = () => {
                   className={styles.input}
                   disabled={deleting}
                 >
-                  <option value="">-- Nicht umbuchen (Posten bleiben unverändert)</option>
+                  <option value="">{t('categories.delete_modal.no_reassign')}</option>
                   {reassignOptions.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
+                    <option key={c.id} value={c.id}>{tCat(c.name, c.is_system)}</option>
                   ))}
                 </select>
                 <span className={styles.hint}>
-                  Falls Budget-Posten dieser Kategorie zugeordnet sind, musst du sie umbuchen oder zuerst löschen.
+                  {t('categories.delete_modal.reassign_hint')}
                 </span>
               </div>
             )}
@@ -267,10 +271,10 @@ const CategoriesPage = () => {
 
             <div className={styles.formActions}>
               <button className="btn" onClick={handleCloseDelete} disabled={deleting}>
-                Abbrechen
+                {t('common.cancel')}
               </button>
               <button className={styles.deleteBtnModal} onClick={handleDelete} disabled={deleting}>
-                {deleting ? 'Wird gelöscht...' : 'Löschen'}
+                {deleting ? t('categories.delete_modal.deleting') : t('categories.delete_modal.submit')}
               </button>
             </div>
           </div>

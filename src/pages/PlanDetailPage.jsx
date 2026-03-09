@@ -1,14 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import * as api from '../utils/api'
+import { useLanguage } from '../contexts/LanguageContext'
 import styles from './PlanDetailPage.module.css'
-
-const RHYTHM_LABELS = {
-  monthly: 'Monatlich',
-  quarterly: 'Vierteljährlich',
-  semi_annually: 'Halbjährlich',
-  annually: 'Jährlich',
-}
 
 const RHYTHM_DIVISORS = {
   monthly: 1,
@@ -81,6 +75,7 @@ const DonutChart = ({ data }) => {
 const PlanDetailPage = () => {
   const { planId } = useParams()
   const navigate = useNavigate()
+  const { t, tCat, locale } = useLanguage()
 
   const [plan, setPlan] = useState(null)
   const [items, setItems] = useState([])
@@ -128,7 +123,7 @@ const PlanDetailPage = () => {
 
   const getCategoryName = (categoryId) => {
     const cat = categories.find((c) => c.id === categoryId)
-    return cat ? cat.name : '-'
+    return cat ? tCat(cat.name, cat.is_system) : '-'
   }
 
   const filteredCategories = categories.filter((c) => c.type === formData.type)
@@ -296,7 +291,7 @@ const PlanDetailPage = () => {
   }
 
   const handleDelete = async (item) => {
-    if (!window.confirm(`Posten "${item.description}" wirklich löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden.`)) {
+    if (!window.confirm(t('planDetail.item_delete_confirm', { name: item.description }))) {
       return
     }
     try {
@@ -313,7 +308,7 @@ const PlanDetailPage = () => {
   }
 
   const formatCurrency = (value) => {
-    return new Intl.NumberFormat('de-DE', {
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: 'EUR',
     }).format(value)
@@ -358,7 +353,7 @@ const PlanDetailPage = () => {
   const filteredExpenseSum = filteredExpenseItems.reduce((sum, i) => sum + i.monthly_amount, 0)
 
   if (loading) {
-    return <div className={styles.loading}>Plan wird geladen...</div>
+    return <div className={styles.loading}>{t('planDetail.loading')}</div>
   }
 
   if (error) {
@@ -371,7 +366,7 @@ const PlanDetailPage = () => {
         <div className={styles.itemInfo}>
           <span className={styles.itemDescription}>{item.description}</span>
           <span className={styles.itemMeta}>
-            {getCategoryName(item.category_id)} - {RHYTHM_LABELS[item.payment_rhythm]}
+            {getCategoryName(item.category_id)} - {t(`planDetail.rhythm.${item.payment_rhythm}`)}
           </span>
           {item.note && (
             <span className={styles.itemNote}>{item.note}</span>
@@ -380,15 +375,15 @@ const PlanDetailPage = () => {
         <div className={styles.itemAmounts}>
           <span className={styles.itemAmount}>{formatCurrency(item.amount)}</span>
           <span className={styles.itemMonthly}>
-            {formatCurrency(item.monthly_amount)} / Monat
+            {formatCurrency(item.monthly_amount)} {t('common.per_month')}
           </span>
         </div>
         <div className={styles.itemActions}>
           <button className={styles.editBtn} onClick={() => handleOpenModal(item)}>
-            Bearbeiten
+            {t('common.edit')}
           </button>
           <button className={styles.deleteBtn} onClick={() => handleDelete(item)}>
-            Löschen
+            {t('common.delete')}
           </button>
         </div>
       </div>
@@ -400,7 +395,7 @@ const PlanDetailPage = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <button className={styles.backBtn} onClick={() => navigate('/plans')}>
-          &larr; Zurück
+          {t('planDetail.back')}
         </button>
         <div className={styles.headerTitle}>
           <h1>{plan.name}</h1>
@@ -415,63 +410,63 @@ const PlanDetailPage = () => {
               onClick={() => setShowExportMenu((o) => !o)}
               disabled={exporting}
             >
-              {exporting ? 'Wird exportiert...' : 'Exportieren'}
+              {exporting ? t('planDetail.exporting') : t('planDetail.export')}
               {!exporting && <span className={styles.exportCaret}>&#9660;</span>}
             </button>
             {showExportMenu && (
               <div className={styles.exportMenu}>
                 <button className={styles.exportMenuItem} onClick={() => handleExport('pdf')}>
-                  PDF exportieren
+                  {t('planDetail.export_pdf')}
                 </button>
                 <button className={styles.exportMenuItem} onClick={() => handleExport('excel')}>
-                  Excel exportieren
+                  {t('planDetail.export_excel')}
                 </button>
               </div>
             )}
           </div>
           <button className="btn" onClick={() => handleOpenModal()}>
-            Posten hinzufügen
+            {t('planDetail.add_item')}
           </button>
         </div>
       </div>
 
       <div className={styles.statsBar}>
         <div className={styles.statItem}>
-          <span className={styles.statLabel}>Einnahmen</span>
+          <span className={styles.statLabel}>{t('planDetail.stats.income')}</span>
           <span className={styles.statIncome}>
             {formatCurrency(plan.total_monthly_income)}
           </span>
         </div>
         <div className={styles.statItem}>
-          <span className={styles.statLabel}>Ausgaben</span>
+          <span className={styles.statLabel}>{t('planDetail.stats.expenses')}</span>
           <span className={styles.statExpenses}>
             {formatCurrency(plan.total_monthly_expenses)}
           </span>
         </div>
         <div className={styles.statItem}>
-          <span className={styles.statLabel}>Bilanz</span>
+          <span className={styles.statLabel}>{t('planDetail.stats.balance')}</span>
           <span className={plan.monthly_balance >= 0 ? styles.statPositive : styles.statNegative}>
             {formatCurrency(plan.monthly_balance)}
           </span>
         </div>
         <div className={styles.statItem}>
-          <span className={styles.statLabel}>Posten</span>
+          <span className={styles.statLabel}>{t('planDetail.stats.items')}</span>
           <span>
             {incomeItems.length > 0 && expenseItems.length > 0
               ? `${incomeItems.length} / ${expenseItems.length}`
               : plan.budget_item_count}
           </span>
           {incomeItems.length > 0 && expenseItems.length > 0 && (
-            <span className={styles.statSubLabel}>Einnahmen / Ausgaben</span>
+            <span className={styles.statSubLabel}>{t('planDetail.stats.income_slash_expenses')}</span>
           )}
         </div>
       </div>
 
       {items.length === 0 ? (
         <div className={styles.empty}>
-          <p>Noch keine Budget-Posten vorhanden.</p>
+          <p>{t('planDetail.empty')}</p>
           <button className="btn" onClick={() => handleOpenModal()}>
-            Ersten Posten hinzufügen
+            {t('planDetail.first_add')}
           </button>
         </div>
       ) : (
@@ -481,23 +476,22 @@ const PlanDetailPage = () => {
               className={`${styles.tab} ${activeTab === 'dashboard' ? styles.tabActive : ''}`}
               onClick={() => setActiveTab('dashboard')}
             >
-              Übersicht
+              {t('planDetail.tab_overview')}
             </button>
             <button
               className={`${styles.tab} ${activeTab === 'items' ? styles.tabActive : ''}`}
               onClick={() => setActiveTab('items')}
             >
-              Budget-Posten
+              {t('planDetail.tab_items')}
             </button>
           </div>
 
           {activeTab === 'dashboard' && (
             <div className={styles.dashboard}>
-              {/* Top 5 Ausgabenkategorien - US-043 */}
               <div className={styles.top5Section}>
-                <h3 className={styles.subTitle}>Top 5 Ausgabenkategorien</h3>
+                <h3 className={styles.subTitle}>{t('planDetail.top5_title')}</h3>
                 {getCategoryBreakdown('expense').length === 0 ? (
-                  <p className={styles.noData}>Keine Ausgaben vorhanden.</p>
+                  <p className={styles.noData}>{t('planDetail.no_expenses')}</p>
                 ) : (
                   <div className={styles.top5List}>
                     {getCategoryBreakdown('expense').slice(0, 5).map((cat, i) => (
@@ -516,30 +510,29 @@ const PlanDetailPage = () => {
                 )}
               </div>
 
-              {/* Vollständige Kategorieauswertung - US-041/042 */}
               <div className={styles.chartToggle}>
                 <button
                   className={`${styles.toggleBtn} ${chartType === 'expense' ? styles.toggleExpense : ''}`}
                   onClick={() => setChartType('expense')}
                 >
-                  Ausgaben
+                  {t('planDetail.stats.expenses')}
                 </button>
                 <button
                   className={`${styles.toggleBtn} ${chartType === 'income' ? styles.toggleIncome : ''}`}
                   onClick={() => setChartType('income')}
                 >
-                  Einnahmen
+                  {t('planDetail.stats.income')}
                 </button>
               </div>
 
               {breakdown.length === 0 ? (
                 <div className={styles.noData}>
-                  Keine {chartType === 'expense' ? 'Ausgaben' : 'Einnahmen'} vorhanden.
+                  {chartType === 'expense' ? t('planDetail.no_data_expenses') : t('planDetail.no_data_income')}
                 </div>
               ) : (
                 <div className={styles.dashboardGrid}>
                   <div className={styles.breakdownSection}>
-                    <h3 className={styles.subTitle}>Nach Kategorie</h3>
+                    <h3 className={styles.subTitle}>{t('planDetail.by_category')}</h3>
                     {breakdown.map((cat) => (
                       <div key={cat.id} className={styles.breakdownRow}>
                         <div className={styles.breakdownHeader}>
@@ -566,7 +559,7 @@ const PlanDetailPage = () => {
                   </div>
 
                   <div className={styles.chartSection}>
-                    <h3 className={styles.subTitle}>Verteilung</h3>
+                    <h3 className={styles.subTitle}>{t('planDetail.distribution')}</h3>
                     <DonutChart data={breakdown} />
                     <div className={styles.legend}>
                       {breakdown.slice(0, 6).map((cat) => (
@@ -591,7 +584,7 @@ const PlanDetailPage = () => {
                 <input
                   type="text"
                   className={styles.searchInput}
-                  placeholder="Suche nach Bezeichnung, Kategorie oder Bemerkung..."
+                  placeholder={t('planDetail.search_placeholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -604,7 +597,7 @@ const PlanDetailPage = () => {
 
               {availableCategories.length > 0 && (
                 <div className={styles.filterBar}>
-                  <span className={styles.sortLabel}>Kategorie:</span>
+                  <span className={styles.sortLabel}>{t('planDetail.filter_category')}</span>
                   {availableCategories.map((cat) => (
                     <button
                       key={cat.id}
@@ -616,20 +609,20 @@ const PlanDetailPage = () => {
                   ))}
                   {hasActiveFilters && (
                     <button className={styles.filterReset} onClick={resetFilters}>
-                      Zurücksetzen
+                      {t('planDetail.filter_reset')}
                     </button>
                   )}
                 </div>
               )}
 
               <div className={styles.sortBar}>
-                <span className={styles.sortLabel}>Sortieren:</span>
+                <span className={styles.sortLabel}>{t('planDetail.sort.label')}</span>
                 {[
-                  { key: 'monthly_amount', label: 'Monatlich' },
-                  { key: 'amount', label: 'Betrag' },
-                  { key: 'description', label: 'Bezeichnung' },
-                  { key: 'category', label: 'Kategorie' },
-                  { key: 'payment_rhythm', label: 'Rhythmus' },
+                  { key: 'monthly_amount', label: t('planDetail.sort.monthly') },
+                  { key: 'amount', label: t('planDetail.sort.amount') },
+                  { key: 'description', label: t('planDetail.sort.description') },
+                  { key: 'category', label: t('planDetail.sort.category') },
+                  { key: 'payment_rhythm', label: t('planDetail.sort.rhythm') },
                 ].map(({ key, label }) => (
                   <button
                     key={key}
@@ -643,19 +636,19 @@ const PlanDetailPage = () => {
 
               {filteredItems.length === 0 && hasActiveFilters ? (
                 <div className={styles.searchEmpty}>
-                  Keine Ergebnisse für die gewählten Filter.
+                  {t('planDetail.no_results')}
                 </div>
               ) : (
                 <div className={styles.sections}>
                   {filteredIncomeItems.length > 0 && (
                     <section>
                       <h2 className={`${styles.sectionTitle} ${styles.sectionIncome}`}>
-                        Einnahmen
+                        {t('planDetail.income_section')}
                       </h2>
                       <div className={styles.itemList}>
                         {renderItemList(getSortedItems(filteredIncomeItems))}
                         <div className={styles.sectionSum}>
-                          <span>Summe monatlich</span>
+                          <span>{t('planDetail.sum_monthly')}</span>
                           <span className={styles.statIncome}>{formatCurrency(filteredIncomeSum)}</span>
                         </div>
                       </div>
@@ -665,12 +658,12 @@ const PlanDetailPage = () => {
                   {filteredExpenseItems.length > 0 && (
                     <section>
                       <h2 className={`${styles.sectionTitle} ${styles.sectionExpense}`}>
-                        Ausgaben
+                        {t('planDetail.expenses_section')}
                       </h2>
                       <div className={styles.itemList}>
                         {renderItemList(getSortedItems(filteredExpenseItems))}
                         <div className={styles.sectionSum}>
-                          <span>Summe monatlich</span>
+                          <span>{t('planDetail.sum_monthly')}</span>
                           <span className={styles.statExpenses}>{formatCurrency(filteredExpenseSum)}</span>
                         </div>
                       </div>
@@ -690,7 +683,7 @@ const PlanDetailPage = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className={styles.modalHeader}>
-              <h2>{editingItem ? 'Posten bearbeiten' : 'Posten hinzufügen'}</h2>
+              <h2>{editingItem ? t('planDetail.modal.edit_title') : t('planDetail.modal.add_title')}</h2>
               <button className={styles.closeBtn} onClick={handleCloseModal}>
                 &times;
               </button>
@@ -700,7 +693,7 @@ const PlanDetailPage = () => {
 
             <form onSubmit={handleSubmit} className={styles.form}>
               <div className={styles.formGroup}>
-                <label className={styles.label}>Typ</label>
+                <label className={styles.label}>{t('planDetail.modal.type_label')}</label>
                 <div className={styles.typeToggle}>
                   <label className={`${styles.typeOption} ${formData.type === 'expense' ? styles.typeActive : ''}`}>
                     <input
@@ -710,7 +703,7 @@ const PlanDetailPage = () => {
                       checked={formData.type === 'expense'}
                       onChange={handleChange}
                     />
-                    Ausgabe
+                    {t('planDetail.modal.type_expense')}
                   </label>
                   <label className={`${styles.typeOption} ${formData.type === 'income' ? styles.typeActiveIncome : ''}`}>
                     <input
@@ -720,14 +713,14 @@ const PlanDetailPage = () => {
                       checked={formData.type === 'income'}
                       onChange={handleChange}
                     />
-                    Einnahme
+                    {t('planDetail.modal.type_income')}
                   </label>
                 </div>
               </div>
 
               <div className={styles.formGroup}>
                 <label htmlFor="category_id" className={styles.label}>
-                  Kategorie
+                  {t('planDetail.modal.category_label')}
                 </label>
                 <select
                   id="category_id"
@@ -738,16 +731,16 @@ const PlanDetailPage = () => {
                   required
                   disabled={submitting}
                 >
-                  <option value="">Kategorie wählen...</option>
+                  <option value="">{t('planDetail.modal.category_placeholder')}</option>
                   {filteredCategories.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
+                    <option key={c.id} value={c.id}>{tCat(c.name, c.is_system)}</option>
                   ))}
                 </select>
               </div>
 
               <div className={styles.formGroup}>
                 <label htmlFor="description" className={styles.label}>
-                  Bezeichnung
+                  {t('planDetail.modal.description_label')}
                 </label>
                 <input
                   type="text"
@@ -756,7 +749,7 @@ const PlanDetailPage = () => {
                   value={formData.description}
                   onChange={handleChange}
                   className={styles.input}
-                  placeholder="z.B. Miete, Gehalt..."
+                  placeholder={t('planDetail.modal.description_placeholder')}
                   required
                   disabled={submitting}
                 />
@@ -765,7 +758,7 @@ const PlanDetailPage = () => {
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
                   <label htmlFor="amount" className={styles.label}>
-                    Betrag (EUR)
+                    {t('planDetail.modal.amount_label')}
                   </label>
                   <input
                     type="number"
@@ -782,14 +775,14 @@ const PlanDetailPage = () => {
                   />
                   {previewMonthly !== null && (
                     <span className={styles.monthlyPreview}>
-                      = {formatCurrency(previewMonthly)} / Monat
+                      {t('planDetail.modal.preview', { amount: formatCurrency(previewMonthly) })}
                     </span>
                   )}
                 </div>
 
                 <div className={styles.formGroup}>
                   <label htmlFor="payment_rhythm" className={styles.label}>
-                    Zahlungsrhythmus
+                    {t('planDetail.modal.rhythm_label')}
                   </label>
                   <select
                     id="payment_rhythm"
@@ -799,17 +792,18 @@ const PlanDetailPage = () => {
                     className={styles.input}
                     disabled={submitting}
                   >
-                    <option value="monthly">Monatlich</option>
-                    <option value="quarterly">Vierteljährlich</option>
-                    <option value="semi_annually">Halbjährlich</option>
-                    <option value="annually">Jährlich</option>
+                    <option value="monthly">{t('planDetail.rhythm.monthly')}</option>
+                    <option value="quarterly">{t('planDetail.rhythm.quarterly')}</option>
+                    <option value="semi_annually">{t('planDetail.rhythm.semi_annually')}</option>
+                    <option value="annually">{t('planDetail.rhythm.annually')}</option>
                   </select>
                 </div>
               </div>
 
               <div className={styles.formGroup}>
                 <label htmlFor="note" className={styles.label}>
-                  Bemerkung <span className={styles.optional}>(optional)</span>
+                  {t('planDetail.modal.note_label')}{' '}
+                  <span className={styles.optional}>{t('common.optional')}</span>
                 </label>
                 <textarea
                   id="note"
@@ -817,7 +811,7 @@ const PlanDetailPage = () => {
                   value={formData.note}
                   onChange={handleChange}
                   className={`${styles.input} ${styles.textarea}`}
-                  placeholder="z.B. wird im Januar fällig..."
+                  placeholder={t('planDetail.modal.note_placeholder')}
                   disabled={submitting}
                 />
               </div>
@@ -829,12 +823,12 @@ const PlanDetailPage = () => {
                   onClick={handleCloseModal}
                   disabled={submitting}
                 >
-                  Abbrechen
+                  {t('common.cancel')}
                 </button>
                 <button type="submit" className="btn" disabled={submitting}>
                   {submitting
-                    ? 'Wird gespeichert...'
-                    : editingItem ? 'Speichern' : 'Hinzufügen'}
+                    ? t('planDetail.modal.saving')
+                    : editingItem ? t('common.save') : t('planDetail.modal.add')}
                 </button>
               </div>
             </form>

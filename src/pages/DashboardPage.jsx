@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import * as api from '../utils/api'
+import { useLanguage } from '../contexts/LanguageContext'
 import styles from './DashboardPage.module.css'
-
-const formatCurrency = (value) =>
-  new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value)
 
 const DashboardPage = () => {
   const [plans, setPlans] = useState([])
@@ -12,6 +10,10 @@ const DashboardPage = () => {
   const [error, setError] = useState('')
   const [activePlanId, setActivePlanId] = useState(null)
   const [comparePlanIds, setComparePlanIds] = useState([])
+  const { t, locale } = useLanguage()
+
+  const formatCurrency = (value) =>
+    new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR' }).format(value)
 
   useEffect(() => {
     const storedActive = parseInt(localStorage.getItem('activePlanId'))
@@ -62,26 +64,26 @@ const DashboardPage = () => {
   const activePlan = plans.find((p) => p.id === activePlanId) ?? null
   const comparePlans = plans.filter((p) => comparePlanIds.includes(p.id))
 
-  if (loading) return <div className={styles.loading}>Wird geladen...</div>
+  if (loading) return <div className={styles.loading}>{t('dashboard.loading')}</div>
   if (error) return <div className={styles.error}>{error}</div>
 
   return (
     <div className={styles.container}>
       <div className={styles.pageHeader}>
-        <h1>Dashboard</h1>
+        <h1>{t('dashboard.title')}</h1>
       </div>
 
       {/* Aktiver Plan */}
       <section className={styles.activePlanSection}>
         <div className={styles.sectionHeader}>
-          <h2>Aktiver Plan</h2>
+          <h2>{t('dashboard.active_plan.title')}</h2>
           {plans.length > 0 && (
             <select
               className={styles.planSelector}
               value={activePlanId ?? ''}
               onChange={handleSetActivePlan}
             >
-              <option value="">Plan auswählen...</option>
+              <option value="">{t('dashboard.active_plan.select_placeholder')}</option>
               {plans.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
@@ -91,22 +93,23 @@ const DashboardPage = () => {
 
         {plans.length === 0 ? (
           <div className={styles.emptyHint}>
-            Noch keine Pläne vorhanden. <Link to="/plans">Plan erstellen</Link>
+            {t('dashboard.active_plan.no_plans')}{' '}
+            <Link to="/plans">{t('dashboard.active_plan.create_link')}</Link>
           </div>
         ) : activePlanId === null ? (
           <div className={styles.emptyHint}>
-            Wähle einen Plan aus dem Dropdown aus, um dessen Kennzahlen hier anzuzeigen.
+            {t('dashboard.active_plan.select_hint')}
           </div>
         ) : activePlan === null ? (
           <div className={styles.emptyHint}>
-            Der zuletzt aktive Plan wurde gelöscht. Bitte einen neuen Plan auswählen.
+            {t('dashboard.active_plan.deleted_hint')}
           </div>
         ) : (
           <div className={styles.activePlanCard}>
             <div className={styles.activePlanHeader}>
               <span className={styles.activePlanName}>{activePlan.name}</span>
               <Link to={`/plans/${activePlan.id}`} className="btn">
-                Plan öffnen
+                {t('dashboard.active_plan.open')}
               </Link>
             </div>
             {activePlan.description && (
@@ -114,21 +117,21 @@ const DashboardPage = () => {
             )}
             <div className={styles.statsGrid}>
               <div className={styles.statBox}>
-                <span className={styles.statLabel}>Einnahmen</span>
+                <span className={styles.statLabel}>{t('dashboard.active_plan.income')}</span>
                 <span className={`${styles.statValue} ${styles.statIncome}`}>
                   {formatCurrency(activePlan.total_monthly_income)}
                 </span>
-                <span className={styles.statSub}>/ Monat</span>
+                <span className={styles.statSub}>{t('dashboard.active_plan.per_month')}</span>
               </div>
               <div className={styles.statBox}>
-                <span className={styles.statLabel}>Ausgaben</span>
+                <span className={styles.statLabel}>{t('dashboard.active_plan.expenses')}</span>
                 <span className={`${styles.statValue} ${styles.statExpenses}`}>
                   {formatCurrency(activePlan.total_monthly_expenses)}
                 </span>
-                <span className={styles.statSub}>/ Monat</span>
+                <span className={styles.statSub}>{t('dashboard.active_plan.per_month')}</span>
               </div>
               <div className={styles.statBox}>
-                <span className={styles.statLabel}>Bilanz</span>
+                <span className={styles.statLabel}>{t('dashboard.active_plan.balance')}</span>
                 <span
                   className={`${styles.statValue} ${
                     activePlan.monthly_balance >= 0 ? styles.statPositive : styles.statNegative
@@ -136,12 +139,12 @@ const DashboardPage = () => {
                 >
                   {formatCurrency(activePlan.monthly_balance)}
                 </span>
-                <span className={styles.statSub}>/ Monat</span>
+                <span className={styles.statSub}>{t('dashboard.active_plan.per_month')}</span>
               </div>
               <div className={styles.statBox}>
-                <span className={styles.statLabel}>Posten</span>
+                <span className={styles.statLabel}>{t('dashboard.active_plan.items')}</span>
                 <span className={styles.statValue}>{activePlan.budget_item_count}</span>
-                <span className={styles.statSub}>Budget-Posten</span>
+                <span className={styles.statSub}>{t('dashboard.active_plan.budget_items')}</span>
               </div>
             </div>
           </div>
@@ -152,9 +155,9 @@ const DashboardPage = () => {
       {plans.length > 1 && (
         <section className={styles.compareSection}>
           <div className={styles.sectionHeader}>
-            <h2>Plan-Vergleich</h2>
+            <h2>{t('dashboard.compare.title')}</h2>
             {comparePlanIds.length >= 3 && (
-              <span className={styles.compareMaxHint}>Maximum erreicht (3 Pläne)</span>
+              <span className={styles.compareMaxHint}>{t('dashboard.compare.max_hint')}</span>
             )}
           </div>
 
@@ -181,7 +184,7 @@ const DashboardPage = () => {
 
           {comparePlans.length === 0 ? (
             <div className={styles.emptyHint}>
-              Wähle bis zu 3 Pläne aus, um sie nebeneinander zu vergleichen.
+              {t('dashboard.compare.select_hint')}
             </div>
           ) : (
             <div className={styles.compareTableWrapper}>
@@ -196,7 +199,7 @@ const DashboardPage = () => {
                 </thead>
                 <tbody>
                   <tr>
-                    <td className={styles.compareRowLabel}>Einnahmen</td>
+                    <td className={styles.compareRowLabel}>{t('dashboard.compare.income')}</td>
                     {comparePlans.map((p) => (
                       <td key={p.id} className={`${styles.compareTd} ${styles.compareValueIncome}`}>
                         {formatCurrency(p.total_monthly_income)}
@@ -204,7 +207,7 @@ const DashboardPage = () => {
                     ))}
                   </tr>
                   <tr>
-                    <td className={styles.compareRowLabel}>Ausgaben</td>
+                    <td className={styles.compareRowLabel}>{t('dashboard.compare.expenses')}</td>
                     {comparePlans.map((p) => (
                       <td key={p.id} className={`${styles.compareTd} ${styles.compareValueExpenses}`}>
                         {formatCurrency(p.total_monthly_expenses)}
@@ -212,7 +215,7 @@ const DashboardPage = () => {
                     ))}
                   </tr>
                   <tr className={styles.compareBalanceRow}>
-                    <td className={styles.compareRowLabel}>Bilanz</td>
+                    <td className={styles.compareRowLabel}>{t('dashboard.compare.balance')}</td>
                     {comparePlans.map((p) => (
                       <td
                         key={p.id}
@@ -227,7 +230,7 @@ const DashboardPage = () => {
                     ))}
                   </tr>
                   <tr>
-                    <td className={styles.compareRowLabel}>Posten</td>
+                    <td className={styles.compareRowLabel}>{t('dashboard.compare.items')}</td>
                     {comparePlans.map((p) => (
                       <td key={p.id} className={styles.compareTd}>
                         {p.budget_item_count}

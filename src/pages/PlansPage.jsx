@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import * as api from '../utils/api'
+import { useLanguage } from '../contexts/LanguageContext'
 import styles from './PlansPage.module.css'
 
 const PlansPage = () => {
@@ -14,6 +15,7 @@ const PlansPage = () => {
   const [formError, setFormError] = useState('')
   const [duplicatingId, setDuplicatingId] = useState(null)
   const navigate = useNavigate()
+  const { t, locale } = useLanguage()
 
   useEffect(() => {
     fetchPlans()
@@ -63,7 +65,7 @@ const PlansPage = () => {
   }
 
   const handleDelete = async (plan) => {
-    if (!window.confirm(`Plan "${plan.name}" wirklich löschen?\n\nAlle zugehörigen Budget-Posten werden ebenfalls permanent gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.`)) {
+    if (!window.confirm(t('plans.delete_confirm', { name: plan.name }))) {
       return
     }
     try {
@@ -96,7 +98,7 @@ const PlansPage = () => {
   }
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('de-DE', {
+    return new Date(dateString).toLocaleDateString(locale, {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -104,23 +106,23 @@ const PlansPage = () => {
   }
 
   const formatCurrency = (value) => {
-    return new Intl.NumberFormat('de-DE', {
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: 'EUR',
     }).format(value)
   }
 
   if (loading) {
-    return <div className={styles.loading}>Pläne werden geladen...</div>
+    return <div className={styles.loading}>{t('plans.loading')}</div>
   }
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1>Meine Pläne</h1>
+        <h1>{t('plans.title')}</h1>
         {plans.length > 0 && (
           <button className="btn" onClick={() => handleOpenModal()}>
-            Neuen Plan erstellen
+            {t('plans.create_button')}
           </button>
         )}
       </div>
@@ -129,9 +131,9 @@ const PlansPage = () => {
 
       {plans.length === 0 ? (
         <div className={styles.empty}>
-          <p>Du hast noch keine Budget-Pläne erstellt.</p>
+          <p>{t('plans.empty_message')}</p>
           <button className="btn" onClick={() => handleOpenModal()}>
-            Ersten Plan erstellen
+            {t('plans.first_create_button')}
           </button>
         </div>
       ) : (
@@ -147,7 +149,7 @@ const PlansPage = () => {
                   className="btn"
                   onClick={() => navigate(`/plans/${plan.id}`)}
                 >
-                  Öffnen
+                  {t('plans.open')}
                 </button>
               </div>
 
@@ -159,18 +161,18 @@ const PlansPage = () => {
                 <span className={plan.monthly_balance >= 0 ? styles.balancePositive : styles.balanceNegative}>
                   {formatCurrency(plan.monthly_balance)}
                 </span>
-                <span className={styles.balanceLabel}>monatliche Bilanz</span>
+                <span className={styles.balanceLabel}>{t('plans.monthly_balance')}</span>
               </div>
 
               <div className={styles.planStats}>
                 <div className={styles.statRow}>
-                  <span className={styles.statLabel}>Einnahmen</span>
+                  <span className={styles.statLabel}>{t('plans.income')}</span>
                   <span className={styles.statIncome}>
                     {formatCurrency(plan.total_monthly_income)}
                   </span>
                 </div>
                 <div className={styles.statRow}>
-                  <span className={styles.statLabel}>Ausgaben</span>
+                  <span className={styles.statLabel}>{t('plans.expenses')}</span>
                   <span className={styles.statExpenses}>
                     {formatCurrency(plan.total_monthly_expenses)}
                   </span>
@@ -179,7 +181,7 @@ const PlansPage = () => {
 
               <div className={styles.planFooter}>
                 <span className={styles.planMeta}>
-                  {plan.budget_item_count} Posten · {formatDate(plan.created_at)}
+                  {t('plans.items_meta', { count: plan.budget_item_count })} · {formatDate(plan.created_at)}
                 </span>
                 <div className={styles.planActions}>
                   <button
@@ -187,19 +189,19 @@ const PlansPage = () => {
                     onClick={() => handleDuplicate(plan)}
                     disabled={duplicatingId === plan.id}
                   >
-                    {duplicatingId === plan.id ? 'Wird dupliziert...' : 'Duplizieren'}
+                    {duplicatingId === plan.id ? t('plans.duplicating') : t('plans.duplicate')}
                   </button>
                   <button
                     className={styles.editBtn}
                     onClick={() => handleOpenModal(plan)}
                   >
-                    Bearbeiten
+                    {t('common.edit')}
                   </button>
                   <button
                     className={styles.deleteBtn}
                     onClick={() => handleDelete(plan)}
                   >
-                    Löschen
+                    {t('common.delete')}
                   </button>
                 </div>
               </div>
@@ -215,7 +217,7 @@ const PlansPage = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className={styles.modalHeader}>
-              <h2>{editingPlan ? 'Plan bearbeiten' : 'Neuen Plan erstellen'}</h2>
+              <h2>{editingPlan ? t('plans.modal.edit_title') : t('plans.modal.create_title')}</h2>
               <button className={styles.closeBtn} onClick={handleCloseModal}>
                 &times;
               </button>
@@ -226,7 +228,7 @@ const PlansPage = () => {
             <form onSubmit={handleSubmit} className={styles.form}>
               <div className={styles.formGroup}>
                 <label htmlFor="name" className={styles.label}>
-                  Name
+                  {t('plans.modal.name_label')}
                 </label>
                 <input
                   type="text"
@@ -235,7 +237,7 @@ const PlansPage = () => {
                   value={formData.name}
                   onChange={handleChange}
                   className={styles.input}
-                  placeholder="z.B. Haushaltsplan März 2026"
+                  placeholder={t('plans.modal.name_placeholder')}
                   required
                   disabled={submitting}
                 />
@@ -243,7 +245,8 @@ const PlansPage = () => {
 
               <div className={styles.formGroup}>
                 <label htmlFor="description" className={styles.label}>
-                  Beschreibung <span className={styles.optional}>(optional)</span>
+                  {t('plans.modal.description_label')}{' '}
+                  <span className={styles.optional}>{t('common.optional')}</span>
                 </label>
                 <textarea
                   id="description"
@@ -251,7 +254,7 @@ const PlansPage = () => {
                   value={formData.description}
                   onChange={handleChange}
                   className={`${styles.input} ${styles.textarea}`}
-                  placeholder="Kurze Beschreibung des Plans..."
+                  placeholder={t('plans.modal.description_placeholder')}
                   disabled={submitting}
                 />
               </div>
@@ -263,12 +266,12 @@ const PlansPage = () => {
                   onClick={handleCloseModal}
                   disabled={submitting}
                 >
-                  Abbrechen
+                  {t('common.cancel')}
                 </button>
                 <button type="submit" className="btn" disabled={submitting}>
                   {submitting
-                    ? editingPlan ? 'Wird gespeichert...' : 'Wird erstellt...'
-                    : editingPlan ? 'Speichern' : 'Erstellen'}
+                    ? editingPlan ? t('common.saving') : t('common.creating')
+                    : editingPlan ? t('common.save') : t('common.create')}
                 </button>
               </div>
             </form>
