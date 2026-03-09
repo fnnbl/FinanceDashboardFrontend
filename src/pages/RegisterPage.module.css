@@ -35,10 +35,11 @@
 }
 
 .brandMark {
-  width: 580px;
-  height: 580px;
+  width: min(580px, 90vw);
+  height: min(580px, 90vw);
   object-fit: contain;
   margin-bottom: -8rem;
+  pointer-events: none;
 }
 
 .brandName {
@@ -148,6 +149,7 @@
   position: fixed;
   top: 1rem;
   right: 1rem;
+  z-index: 50;
   background: var(--section-bg);
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -173,4 +175,51 @@
 :global([data-theme="dark"]) .themeToggle img {
   filter: brightness(0) invert(1);
   opacity: 0.8;
+}
+
+/* Tablet */
+@media (max-width: 640px) {
+  .container {
+    padding: 1.25rem;
+  }
+
+  .group {
+    transform: translateY(-5rem);
+    max-width: 100%;
+  }
+
+  .brandMark {
+    width: min(380px, 85vw);
+    height: min(380px, 85vw);
+    margin-bottom: -5rem;
+  }
+
+  .tagline {
+    font-size: 16px;
+  }
+
+  .formWrapper {
+    padding: 1.75rem 1.5rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 400px) {
+  .group {
+    transform: translateY(-3rem);
+  }
+
+  .brandMark {
+    width: min(280px, 80vw);
+    height: min(280px, 80vw);
+    margin-bottom: -3.5rem;
+  }
+
+  .tagline {
+    font-size: 14px;
+  }
+
+  .formWrapper {
+    padding: 1.5rem 1.25rem;
+  }
 }
