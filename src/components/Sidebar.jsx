@@ -2,24 +2,26 @@ import { useState, useRef, useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
+import { useLanguage } from '../contexts/LanguageContext'
 import sunIcon from '../assets/sun.svg'
 import moonIcon from '../assets/moon.svg'
 import logoLight from '../assets/BudgetManagementLightNoDesc.svg'
 import logoDark from '../assets/BudgetManagementDarkNoDesc.svg'
+import flagDe from '../assets/de.svg'
+import flagGb from '../assets/gb.svg'
 import styles from './Sidebar.module.css'
 
 const Sidebar = () => {
   const { isAuthenticated, logout, user } = useAuth()
-  const { theme, toggleTheme } = useTheme()
+  const { theme, setTheme } = useTheme()
+  const { lang, setLang, t } = useLanguage()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef(null)
 
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setMenuOpen(false)
-      }
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false)
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
@@ -65,7 +67,7 @@ const Sidebar = () => {
                 <rect x="9" y="9" width="6" height="6" rx="1" />
               </svg>
             </span>
-            Dashboard
+            <span className={styles.navLabel}>{t('sidebar.dashboard')}</span>
           </NavLink>
           <NavLink
             to="/plans"
@@ -78,7 +80,7 @@ const Sidebar = () => {
                 <path d="M2 4h12M2 8h8M2 12h10" strokeLinecap="round" />
               </svg>
             </span>
-            Pläne
+            <span className={styles.navLabel}>{t('sidebar.plans')}</span>
           </NavLink>
           <NavLink
             to="/categories"
@@ -93,21 +95,51 @@ const Sidebar = () => {
                 <path d="M11 2l2 2-2 2M5 10l-2 2 2 2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
-            Kategorien
+            <span className={styles.navLabel}>{t('sidebar.categories')}</span>
           </NavLink>
         </nav>
       </div>
 
       <div className={styles.bottom}>
-        <button onClick={toggleTheme} className={styles.themeToggle} aria-label="Design wechseln">
-          <img
-            src={theme === 'dark' ? sunIcon : moonIcon}
-            className={styles.themeIcon}
-            alt=""
-          />
-          {theme === 'dark' ? 'Heller Modus' : 'Dunkler Modus'}
-        </button>
 
+        {/* Theme + Language icon toggles */}
+        <div className={styles.iconToggles}>
+          <div className={styles.iconGroup}>
+            <button
+              className={`${styles.iconBtn} ${theme === 'light' ? styles.iconBtnActive : ''}`}
+              onClick={() => setTheme('light')}
+              aria-label="Heller Modus"
+            >
+              <img src={sunIcon} className={styles.iconBtnImg} alt="" />
+            </button>
+            <button
+              className={`${styles.iconBtn} ${theme === 'dark' ? styles.iconBtnActive : ''}`}
+              onClick={() => setTheme('dark')}
+              aria-label="Dunkler Modus"
+            >
+              <img src={moonIcon} className={styles.iconBtnImg} alt="" />
+            </button>
+          </div>
+
+          <div className={styles.iconGroup}>
+            <button
+              className={`${styles.iconBtn} ${lang === 'de' ? styles.iconBtnActive : ''}`}
+              onClick={() => setLang('de')}
+              aria-label="Deutsch"
+            >
+              <img src={flagDe} className={styles.iconBtnFlag} alt="DE" />
+            </button>
+            <button
+              className={`${styles.iconBtn} ${lang === 'en' ? styles.iconBtnActive : ''}`}
+              onClick={() => setLang('en')}
+              aria-label="English"
+            >
+              <img src={flagGb} className={styles.iconBtnFlag} alt="EN" />
+            </button>
+          </div>
+        </div>
+
+        {/* User menu */}
         <div className={styles.userSection} ref={menuRef}>
           <button
             className={styles.userButton}
@@ -122,7 +154,7 @@ const Sidebar = () => {
             <div className={styles.userMenu}>
               <div className={styles.userMenuName}>{displayName}</div>
               <button onClick={handleLogout} className={styles.userMenuItem}>
-                Abmelden
+                {t('sidebar.logout')}
               </button>
             </div>
           )}

@@ -145,11 +145,17 @@
   text-decoration: underline;
 }
 
-.themeToggle {
+.topControls {
   position: fixed;
   top: 1rem;
   right: 1rem;
   z-index: 50;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.themeToggle {
   background: var(--section-bg);
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -175,6 +181,31 @@
 :global([data-theme="dark"]) .themeToggle img {
   filter: brightness(0) invert(1);
   opacity: 0.8;
+}
+
+.langToggle {
+  background: var(--section-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.langToggle:hover {
+  background: var(--background-color);
+  border-color: var(--border-hover);
+}
+
+.langToggle img {
+  width: 18px;
+  height: 18px;
+  display: block;
+  border-radius: 2px;
+  object-fit: cover;
 }
 
 /* Tablet */
