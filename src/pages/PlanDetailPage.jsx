@@ -93,6 +93,7 @@ const PlanDetailPage = () => {
 
   const [sortField, setSortField] = useState('monthly_amount')
   const [sortDir, setSortDir] = useState('desc')
+  const [searchQuery, setSearchQuery] = useState('')
 
   const [showModal, setShowModal] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
@@ -285,8 +286,22 @@ const PlanDetailPage = () => {
 
   const incomeItems = items.filter((i) => i.type === 'income')
   const expenseItems = items.filter((i) => i.type === 'expense')
-  const incomeSum = incomeItems.reduce((sum, i) => sum + i.monthly_amount, 0)
-  const expenseSum = expenseItems.reduce((sum, i) => sum + i.monthly_amount, 0)
+
+  const filteredItems = searchQuery.trim()
+    ? items.filter((item) => {
+        const q = searchQuery.toLowerCase()
+        return (
+          item.description.toLowerCase().includes(q) ||
+          getCategoryName(item.category_id).toLowerCase().includes(q) ||
+          (item.note && item.note.toLowerCase().includes(q))
+        )
+      })
+    : items
+
+  const filteredIncomeItems = filteredItems.filter((i) => i.type === 'income')
+  const filteredExpenseItems = filteredItems.filter((i) => i.type === 'expense')
+  const filteredIncomeSum = filteredIncomeItems.reduce((sum, i) => sum + i.monthly_amount, 0)
+  const filteredExpenseSum = filteredExpenseItems.reduce((sum, i) => sum + i.monthly_amount, 0)
 
   if (loading) {
     return <div className={styles.loading}>Plan wird geladen...</div>
@@ -496,6 +511,21 @@ const PlanDetailPage = () => {
 
           {activeTab === 'items' && (
             <div className={styles.itemsView}>
+              <div className={styles.searchBar}>
+                <input
+                  type="text"
+                  className={styles.searchInput}
+                  placeholder="Suche nach Bezeichnung, Kategorie oder Bemerkung..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                {searchQuery && (
+                  <button className={styles.searchClear} onClick={() => setSearchQuery('')}>
+                    &times;
+                  </button>
+                )}
+              </div>
+
               <div className={styles.sortBar}>
                 <span className={styles.sortLabel}>Sortieren:</span>
                 {[
@@ -515,37 +545,43 @@ const PlanDetailPage = () => {
                 ))}
               </div>
 
-              <div className={styles.sections}>
-                {incomeItems.length > 0 && (
-                  <section>
-                    <h2 className={`${styles.sectionTitle} ${styles.sectionIncome}`}>
-                      Einnahmen
-                    </h2>
-                    <div className={styles.itemList}>
-                      {renderItemList(getSortedItems(incomeItems))}
-                      <div className={styles.sectionSum}>
-                        <span>Summe monatlich</span>
-                        <span className={styles.statIncome}>{formatCurrency(incomeSum)}</span>
+              {filteredItems.length === 0 && searchQuery ? (
+                <div className={styles.searchEmpty}>
+                  Keine Ergebnisse für „{searchQuery}".
+                </div>
+              ) : (
+                <div className={styles.sections}>
+                  {filteredIncomeItems.length > 0 && (
+                    <section>
+                      <h2 className={`${styles.sectionTitle} ${styles.sectionIncome}`}>
+                        Einnahmen
+                      </h2>
+                      <div className={styles.itemList}>
+                        {renderItemList(getSortedItems(filteredIncomeItems))}
+                        <div className={styles.sectionSum}>
+                          <span>Summe monatlich</span>
+                          <span className={styles.statIncome}>{formatCurrency(filteredIncomeSum)}</span>
+                        </div>
                       </div>
-                    </div>
-                  </section>
-                )}
+                    </section>
+                  )}
 
-                {expenseItems.length > 0 && (
-                  <section>
-                    <h2 className={`${styles.sectionTitle} ${styles.sectionExpense}`}>
-                      Ausgaben
-                    </h2>
-                    <div className={styles.itemList}>
-                      {renderItemList(getSortedItems(expenseItems))}
-                      <div className={styles.sectionSum}>
-                        <span>Summe monatlich</span>
-                        <span className={styles.statExpenses}>{formatCurrency(expenseSum)}</span>
+                  {filteredExpenseItems.length > 0 && (
+                    <section>
+                      <h2 className={`${styles.sectionTitle} ${styles.sectionExpense}`}>
+                        Ausgaben
+                      </h2>
+                      <div className={styles.itemList}>
+                        {renderItemList(getSortedItems(filteredExpenseItems))}
+                        <div className={styles.sectionSum}>
+                          <span>Summe monatlich</span>
+                          <span className={styles.statExpenses}>{formatCurrency(filteredExpenseSum)}</span>
+                        </div>
                       </div>
-                    </div>
-                  </section>
-                )}
-              </div>
+                    </section>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </>
