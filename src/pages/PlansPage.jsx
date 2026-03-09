@@ -12,6 +12,7 @@ const PlansPage = () => {
   const [formData, setFormData] = useState({ name: '', description: '' })
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState('')
+  const [duplicatingId, setDuplicatingId] = useState(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -48,6 +49,17 @@ const PlansPage = () => {
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleDuplicate = async (plan) => {
+    setDuplicatingId(plan.id)
+    try {
+      const newPlan = await api.duplicatePlan(plan.id)
+      navigate(`/plans/${newPlan.id}`)
+    } catch (err) {
+      setError(err.message)
+      setDuplicatingId(null)
+    }
   }
 
   const handleDelete = async (plan) => {
@@ -170,6 +182,13 @@ const PlansPage = () => {
                   {plan.budget_item_count} Posten · {formatDate(plan.created_at)}
                 </span>
                 <div className={styles.planActions}>
+                  <button
+                    className={styles.duplicateBtn}
+                    onClick={() => handleDuplicate(plan)}
+                    disabled={duplicatingId === plan.id}
+                  >
+                    {duplicatingId === plan.id ? 'Wird dupliziert...' : 'Duplizieren'}
+                  </button>
                   <button
                     className={styles.editBtn}
                     onClick={() => handleOpenModal(plan)}

@@ -154,6 +154,10 @@ export async function getPlan(planId) {
   return request(`/plans/${planId}`)
 }
 
+export async function duplicatePlan(planId) {
+  return request(`/plans/${planId}/duplicate`, { method: 'POST' })
+}
+
 export async function deletePlan(planId) {
   const token = localStorage.getItem('token')
   const headers = {}
