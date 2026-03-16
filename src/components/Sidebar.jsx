@@ -17,14 +17,12 @@ const Sidebar = () => {
   const { lang, setLang, t } = useLanguage()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [langOpen, setLangOpen] = useState(false)
   const menuRef = useRef(null)
-  const langRef = useRef(null)
 
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false)
-      if (langRef.current && !langRef.current.contains(e.target)) setLangOpen(false)
+
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
@@ -105,52 +103,15 @@ const Sidebar = () => {
 
       <div className={styles.bottom}>
 
-        {/* Theme + Language icon toggles */}
+        {/* Theme toggle */}
         <div className={styles.iconToggles}>
-          <div className={styles.iconGroup}>
-            <button
-              className={`${styles.iconBtn} ${theme === 'light' ? styles.iconBtnActive : ''}`}
-              onClick={() => setTheme('light')}
-              aria-label="Heller Modus"
-            >
-              <img src={sunIcon} className={styles.iconBtnImg} alt="" />
-            </button>
-            <button
-              className={`${styles.iconBtn} ${theme === 'dark' ? styles.iconBtnActive : ''}`}
-              onClick={() => setTheme('dark')}
-              aria-label="Dunkler Modus"
-            >
-              <img src={moonIcon} className={styles.iconBtnImg} alt="" />
-            </button>
-          </div>
-
-          <div className={styles.langDropdownWrapper} ref={langRef}>
-            <button
-              className={`${styles.iconBtn} ${langOpen ? styles.iconBtnActive : ''}`}
-              onClick={() => setLangOpen((o) => !o)}
-              aria-label="Sprache wählen"
-            >
-              <img src={lang === 'de' ? flagDe : flagGb} className={styles.iconBtnFlag} alt={lang.toUpperCase()} />
-            </button>
-            {langOpen && (
-              <div className={styles.langDropdown}>
-                <button
-                  className={`${styles.langOption} ${lang === 'de' ? styles.langOptionActive : ''}`}
-                  onClick={() => { setLang('de'); setLangOpen(false) }}
-                >
-                  <img src={flagDe} className={styles.iconBtnFlag} alt="" />
-                  <span>Deutsch</span>
-                </button>
-                <button
-                  className={`${styles.langOption} ${lang === 'en' ? styles.langOptionActive : ''}`}
-                  onClick={() => { setLang('en'); setLangOpen(false) }}
-                >
-                  <img src={flagGb} className={styles.iconBtnFlag} alt="" />
-                  <span>English</span>
-                </button>
-              </div>
-            )}
-          </div>
+          <button
+            className={`${styles.iconBtn} ${styles.iconBtnActive}`}
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            aria-label={theme === 'dark' ? t('sidebar.light_mode') : t('sidebar.dark_mode')}
+          >
+            <img src={theme === 'dark' ? moonIcon : sunIcon} className={styles.iconBtnImg} alt="" />
+          </button>
         </div>
 
         {/* User menu */}
@@ -167,7 +128,22 @@ const Sidebar = () => {
           {menuOpen && (
             <div className={styles.userMenu}>
               <div className={styles.userMenuName}>{displayName}</div>
-              <button onClick={handleLogout} className={styles.userMenuItem}>
+              <div className={styles.userMenuSection}>{t('sidebar.language')}</div>
+              <button
+                className={`${styles.userMenuItem} ${lang === 'de' ? styles.userMenuItemActive : ''}`}
+                onClick={() => setLang('de')}
+              >
+                <img src={flagDe} className={styles.iconBtnFlag} alt="" />
+                <span>Deutsch</span>
+              </button>
+              <button
+                className={`${styles.userMenuItem} ${lang === 'en' ? styles.userMenuItemActive : ''}`}
+                onClick={() => setLang('en')}
+              >
+                <img src={flagGb} className={styles.iconBtnFlag} alt="" />
+                <span>English</span>
+              </button>
+              <button onClick={handleLogout} className={`${styles.userMenuItem} ${styles.userMenuItemLogout}`}>
                 {t('sidebar.logout')}
               </button>
             </div>
