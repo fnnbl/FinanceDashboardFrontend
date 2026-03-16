@@ -17,11 +17,14 @@ const Sidebar = () => {
   const { lang, setLang, t } = useLanguage()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [langOpen, setLangOpen] = useState(false)
   const menuRef = useRef(null)
+  const langRef = useRef(null)
 
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false)
+      if (langRef.current && !langRef.current.contains(e.target)) setLangOpen(false)
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
@@ -121,21 +124,32 @@ const Sidebar = () => {
             </button>
           </div>
 
-          <div className={styles.iconGroup}>
+          <div className={styles.langDropdownWrapper} ref={langRef}>
             <button
-              className={`${styles.iconBtn} ${lang === 'de' ? styles.iconBtnActive : ''}`}
-              onClick={() => setLang('de')}
-              aria-label="Deutsch"
+              className={`${styles.iconBtn} ${langOpen ? styles.iconBtnActive : ''}`}
+              onClick={() => setLangOpen((o) => !o)}
+              aria-label="Sprache wählen"
             >
-              <img src={flagDe} className={styles.iconBtnFlag} alt="DE" />
+              <img src={lang === 'de' ? flagDe : flagGb} className={styles.iconBtnFlag} alt={lang.toUpperCase()} />
             </button>
-            <button
-              className={`${styles.iconBtn} ${lang === 'en' ? styles.iconBtnActive : ''}`}
-              onClick={() => setLang('en')}
-              aria-label="English"
-            >
-              <img src={flagGb} className={styles.iconBtnFlag} alt="EN" />
-            </button>
+            {langOpen && (
+              <div className={styles.langDropdown}>
+                <button
+                  className={`${styles.langOption} ${lang === 'de' ? styles.langOptionActive : ''}`}
+                  onClick={() => { setLang('de'); setLangOpen(false) }}
+                >
+                  <img src={flagDe} className={styles.iconBtnFlag} alt="" />
+                  <span>Deutsch</span>
+                </button>
+                <button
+                  className={`${styles.langOption} ${lang === 'en' ? styles.langOptionActive : ''}`}
+                  onClick={() => { setLang('en'); setLangOpen(false) }}
+                >
+                  <img src={flagGb} className={styles.iconBtnFlag} alt="" />
+                  <span>English</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
