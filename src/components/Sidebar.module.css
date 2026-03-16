@@ -158,6 +158,50 @@
   border-radius: 3px;
 }
 
+/* Language dropdown */
+.langDropdownWrapper {
+  position: relative;
+}
+
+.langDropdown {
+  position: absolute;
+  bottom: calc(100% + 0.375rem);
+  right: 0;
+  background-color: var(--section-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--shadow-modal);
+  overflow: hidden;
+  z-index: 200;
+  animation: menuIn 0.12s ease-out;
+  min-width: 130px;
+}
+
+.langOption {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-color);
+  text-align: left;
+  transition: background-color 0.12s;
+}
+
+.langOption:hover {
+  background-color: var(--sidebar-hover);
+}
+
+.langOptionActive {
+  color: var(--accent);
+  font-weight: 600;
+}
+
 /* User section */
 .userSection {
   position: relative;
@@ -360,6 +404,12 @@
   .iconBtnFlag {
     width: 18px;
     height: 18px;
+  }
+
+  .langDropdown {
+    bottom: auto;
+    top: calc(100% + 0.375rem);
+    right: 0;
   }
 
   .userButton {
